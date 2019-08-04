@@ -1,6 +1,6 @@
 # TOC
 
 1. [Typescript](./typescript)
-2. foo
-3. bar
-4. baz
+2. [React](./react)
+3. [Redux](./redux)
+4. [Saga](./saga)
