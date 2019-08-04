@@ -1,0 +1,8 @@
+.DS_Store
+.DS_Store?
+.idea
+.mc
+.env
+.vscode
+temp
+node_modules
