@@ -4,3 +4,4 @@
 2. [React](./react)
 3. [Redux](./redux)
 4. [Saga](./saga)
+5. [Debugging](./debugging)
