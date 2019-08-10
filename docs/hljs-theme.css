@@ -1,71 +1,77 @@
-/**
- * GitHub Gist Theme
- * Author : Louis Barranqueiro - https://github.com/LouisBarranqueiro
- */
+/*
+
+Darcula color scheme from the JetBrains family of IDEs
+
+*/
+
 
 .hljs {
   display: block;
-  background: white;
-  padding: 0.5em;
-  color: #333333;
   overflow-x: auto;
+  padding: 0.5em;
+  background: #2b2b2b;
 }
 
-.hljs-comment,
-.hljs-meta {
-  color: #969896;
+.hljs {
+  color: #bababa;
 }
 
-.hljs-string,
-.hljs-variable,
-.hljs-template-variable,
 .hljs-strong,
-.hljs-emphasis,
-.hljs-quote {
-  color: #df5000;
+.hljs-emphasis {
+  color: #a8a8a2;
+}
+
+.hljs-bullet,
+.hljs-quote,
+.hljs-link,
+.hljs-number,
+.hljs-regexp,
+.hljs-literal {
+  color: #6896ba;
+}
+
+.hljs-code,
+.hljs-selector-class {
+  color: #a6e22e;
+}
+
+.hljs-emphasis {
+  font-style: italic;
 }
 
 .hljs-keyword,
 .hljs-selector-tag,
-.hljs-type {
-  color: #a71d5d;
-}
-
-.hljs-literal,
-.hljs-symbol,
-.hljs-bullet,
-.hljs-attribute {
-  color: #0086b3;
-}
-
 .hljs-section,
-.hljs-name {
-  color: #63a35c;
+.hljs-attribute,
+.hljs-name,
+.hljs-variable {
+  color: #cb7832;
 }
 
-.hljs-tag {
-  color: #333333;
+.hljs-params {
+  color: #b9b9b9;
 }
 
-.hljs-title,
-.hljs-attr,
+.hljs-string {
+  color: #6a8759;
+}
+
+.hljs-subst,
+.hljs-type,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-symbol,
 .hljs-selector-id,
-.hljs-selector-class,
 .hljs-selector-attr,
-.hljs-selector-pseudo {
-  color: #795da3;
-}
-
+.hljs-selector-pseudo,
+.hljs-template-tag,
+.hljs-template-variable,
 .hljs-addition {
-  color: #55a532;
-  background-color: #eaffea;
+  color: #e0c46c;
 }
 
-.hljs-deletion {
-  color: #bd2c00;
-  background-color: #ffecec;
-}
-
-.hljs-link {
-  text-decoration: underline;
+.hljs-comment,
+.hljs-deletion,
+.hljs-meta {
+  color: #7f7f7f;
 }

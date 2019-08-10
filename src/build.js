@@ -80,7 +80,7 @@ async function main () {
   }
 
   // copy overlay files
-  const hljsTheme = 'github-gist'
+  const hljsTheme = 'darcula' // 'github-gist'
   await Promise.all([
     fsCopyFile('./overlay/reset.css', './docs/reset.css'),
     fsCopyFile('./overlay/main.css', './docs/main.css'),

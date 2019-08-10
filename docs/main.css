@@ -1,3 +1,8 @@
 html, body {
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #fff;
+}
+
+body pre.hljs {
+  background: #2b2b2b;
 }
