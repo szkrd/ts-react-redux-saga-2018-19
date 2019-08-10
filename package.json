@@ -1,0 +1,33 @@
+{
+  "name": "ts-react-redux-saga-2018-19",
+  "version": "1.0.0",
+  "buildVersion": 1,
+  "description": "TODO: add meaningful intro here",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "node src/build.js",
+    "serve": "serve ./docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/szkrd/ts-react-redux-saga-2018-19.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/szkrd/ts-react-redux-saga-2018-19/issues"
+  },
+  "homepage": "https://github.com/szkrd/ts-react-redux-saga-2018-19#readme",
+  "dependencies": {
+    "ejs": "^2.6.2",
+    "highlight.js": "^9.15.9",
+    "marked": "^0.7.0"
+  },
+  "devDependencies": {
+    "serve": "^11.1.0"
+  }
+}

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>title</title>
+    <link rel="stylesheet" href="../main.css?v=1">
+    <link rel="stylesheet" href="../hljs-theme.css">
+    <link rel="stylesheet" href="../markdown.css">
+    <!--<script src="script.js"></script>-->
+</head>
+<body>
+
+<div class="markdown-body"><h1 id="typescript">Typescript</h1>
+<h2 id="typescript-is-not-javascript">Typescript is not javascript</h2>
+<blockquote>
+<p>“Any fool can write code that a computer can understand.<br>Good programmers write code that humans can understand.”<br><em>Martin Fowler</em> </p>
+</blockquote>
+<p>Before I started working on this project, I thought that you can just add typescript to a javascript project and then sooner or later you will have a typescript project. Unfortunately writing typescript requires a rather different mindset than writing javascript.</p>
+<ol>
+<li>Write boring code. No magic.</li>
+<li>Think like the typescript compiler.
+Know when type hinting is needed and when it isn&#39;t.</li>
+<li>Think like your IDE: code discoverability and usage detection is a life saver (and great help for refactoring).</li>
+<li>Avoid typecasting (<code>as Foobar</code>) and <code>any</code> - they will mess up dependency detection real bad.</li>
+<li>Use the TS builtin <code>keyof</code> and <code>typeof</code>. TS typeof is NOT the same as JS typeof! </li>
+</ol>
+<h2 id="libraries-without-typescript-definitions">Libraries without typescript definitions</h2>
+<p>You can fallback to the <a href="http://definitelytyped.org/">Definitely Typed</a> site to add extra type definitions, BUT there is no guarantee that the 3rd party types will be in sync with the library you are using!</p>
+<p>In fact I rarely managed to find a <code>@types</code> definition that had the same version as the library I tried to use it with.</p>
+<p>It is better to copy-paste JS code from Stackoverflow and rewrite it to TS, than installing a dependency without its very own type definition.</p>
+<h2 id="using-objectget-pick-and-similar-helpers">Using objectGet, pick and similar helpers</h2>
+<p>Don&#39;t. TS 3.7 <a href="https://github.com/microsoft/TypeScript/issues/16">might support</a> the &quot;elvis operator&quot; (aka. safe navigation, null coalescence).</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> x = { y: { z: <span class="hljs-literal">null</span>, q: <span class="hljs-literal">undefined</span> } };
+<span class="hljs-built_in">console</span>.log(x?.y?.z?.foo);</code></pre>
+<p>Until then... I don&#39;t know. <code>Object.get</code>, <code>_.get</code>, <code>oGet</code>, <code>objectGet</code> and others will break code discoverability.</p>
+<p>If <code>X</code> interface has A, B, C props and <code>Y</code> interface has A and B then even if you write a <code>pick</code> function with proper type hinting, picking A &amp; B from <code>X</code> will <strong>not</strong> magically convert it to interface <code>Y</code>.</p>
+<p>If you want to pick interface properties to create a type, you can use the <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html#picktk">Pick utility-type</a> but probably that&#39;s not what you are looking for.</p>
+<h2 id="where-to-put-metadata">Where to put metadata</h2>
+<p>Pure typescript metadata (interfaces, enums, types) may be connected to certain functions (like a <code>UserStore</code> type to a reducer), in that case we decided to put the metadata next to the code, this is simple.</p>
+<p>Where to put metadata that is repeated throughout the code? Honestly, <em>I don&#39;t know</em>.</p>
+<p>In typescript enums, const enums, constants, classes, interfaces and types usually overlap somewhat...
+even models are not that simple, since we have ApiModels (like <code>ApiUser</code>) and frontend models (like <code>User</code>).</p>
+<p>All I can say is that if you keep the code <strong>discoverable</strong> then at least you can always find these files, no matter where they are.</p>
+<p>In the end we had <em>constants</em>, <em>enums</em>, <em>models</em> for these things. It was not perfect, but it did not hurt enough to come up with something better.</p>
+<h2 id="classes-vs-interfaces">Classes vs. Interfaces</h2>
+<p>Typescript differentiates through shapes only (unlike a &quot;real&quot; language), so an <em>interface</em> with <code>A: string</code>, <code>B: string</code>, <code>C: string</code> will be the &quot;same&quot; as a <em>class</em> with the same A, B and C properties for typescript&#39;s compiler.</p>
+<p>This means that where one would use an interface it&#39;s possible to use a class, which is much more flexible (except for &quot;mixing&quot; items, since TS doesn&#39;t have multiple inheritance):</p>
+<ul>
+<li>a class can immediately be instanciated (no need to write an interface and a default object (as <code>INITIAL_STATE</code>) for a reducer)</li>
+<li>classes can have a default value AND a type definition</li>
+<li>classes can have implicit types (<code>name = &#39;&#39;</code>)</li>
+<li>classes can have visibility (<em>private</em> and <em>protected</em> props)</li>
+<li>classes can have static methods</li>
+</ul>
+<p>While I&#39;m not a fan of huge, single instance classes (file contains <code>class FooBar</code>, exports <code>new FooBar()</code>), using <em>private</em> and <em>protected</em> immediately tells the developer that a method is not meant to be called externally. I know, this is pretty easy to achieve with closures, but one <em>may</em> decide to go for the expressive power of these keywords.</p>
+<p>I usually keep these &quot;interface-like&quot; classes as simple as possible (no constructor, no methods, just metadata and default values) - especially with reducer stores, where one would never expect a function property (keeping your redux store serializable is always a good thing). But then one wonders, where lies the boundary between JS objects, JS &quot;classes&quot;, TS classes and TS interfaces - who knows?</p>
+</div>
+
+</body>
+</html>

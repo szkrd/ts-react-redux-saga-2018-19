@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>title</title>
+    <link rel="stylesheet" href="../main.css?v=1">
+    <link rel="stylesheet" href="../hljs-theme.css">
+    <link rel="stylesheet" href="../markdown.css">
+    <!--<script src="script.js"></script>-->
+</head>
+<body>
+
+<div class="markdown-body"><h1 id="saga">Saga</h1>
+<h2 id="yield-return-types">Yield return types</h2>
+<p>TS can&#39;t &quot;return&quot; types for interim yields, there are <a href="https://github.com/redux-saga/redux-saga/issues/884">hacks</a> of course.</p>
+<p>I usually use <a href="https://jsdoc.app/tags-returns.html">JSDoc</a> to indicate a return type so that the IDE can help me.</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-comment">/**
+ * executes the get user saga, returns only the token string
+ * @returns {string}
+ */</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span>* <span class="hljs-title">getUserTokenSaga</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> user: CurrentUserState = <span class="hljs-keyword">yield</span> getUserSaga()
+  <span class="hljs-keyword">const</span> token: <span class="hljs-built_in">string</span> = user.token || <span class="hljs-string">''</span>
+  <span class="hljs-keyword">return</span> token
+}</code></pre>
+<p>Using inline docs (<code>ctrl + Q</code>) in WebStorm:</p>
+<p><img src="./images/webstorm-saga-yield-value.png" alt="use jsdoc helpers"></p>
+<h2 id="selector-types">Selector types</h2>
+<p>Store selector paths through yield has no type information.</p>
+<p>The IDE will show you proper types on hover, so it&#39;s easy to copy-paste that:</p>
+<p><img src="./images/webstorm-yield-select-type.png" alt="copy paste select type"></p>
+<h2 id="helper-sagas">Helper sagas</h2>
+<p>I have a <code>utils/redux</code> folder where I keep (among other things) helper saga fragments. If you have the same code repeated over and over again in your saga, you can split that out into a small generator function.</p>
+<h3 id="example">Example</h3>
+<p>if a non logged in user clicks on an action that requires login, we show a small notification with a link to the login page (and we break the current saga flow, forcing execution into the catch block).</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span>* <span class="hljs-title">loginRequiredNotificationSaga</span>(<span class="hljs-params">message: <span class="hljs-built_in">string</span></span>) </span>{
+  <span class="hljs-keyword">const</span> currentUser: CurrentUserState = <span class="hljs-keyword">yield</span> select(<span class="hljs-function">(<span class="hljs-params">state: IState</span>) =&gt;</span> state.user.current)
+  <span class="hljs-keyword">if</span> (CurrentUserState.isLoggedOut(currentUser)) {
+    <span class="hljs-keyword">yield</span> put(addNotLoggedInNotificationActionCreator({ message }))
+    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> LoginRequiredError(<span class="hljs-string">'Login required.'</span>)
+  }
+}</code></pre>
+<h2 id="try-catch-finally">Try-catch-finally</h2>
+<p>We usually have the try-catch-finally in all our flow functions (not just in the root saga), the other option is using a <a href="https://github.com/redux-saga/redux-saga/issues/1250#issuecomment-343750084">safe wrapper</a></p>
+<p>When I use try-catch-finally:</p>
+<ol>
+<li>try handles the main logic, ajax calls, data parsing, transforming</li>
+<li>successful operation ends in a <code>yield put getFooSuccessAction</code></li>
+<li>error either ends in a specific <code>yield put getFooFailureAction</code> and/or<br>a generic <code>yield put generalErrorAction</code></li>
+<li>finally (if used) shall end in a <code>yield put getFooFinishedAction</code></li>
+</ol>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">try</span> {
+  <span class="hljs-keyword">const</span> userToken = <span class="hljs-keyword">yield</span> getUserTokenSaga()
+  <span class="hljs-keyword">const</span> url = api.get(apiUrlGetCountriesStates({ country: countryId })
+  <span class="hljs-keyword">const</span> states = <span class="hljs-keyword">yield</span> call(url, userToken))
+  <span class="hljs-keyword">yield</span> put(getStatesSuccessAction({ states, countryId }))
+} <span class="hljs-keyword">catch</span> (error) {
+  <span class="hljs-keyword">yield</span> put(generalErrorAction({ error }))
+} <span class="hljs-keyword">finally</span> {
+  <span class="hljs-keyword">yield</span> put(getStatesFinishedAction())
+}</code></pre>
+<p>A typical use case for finally is cleaning up the state, setting <code>isLoading</code>
+to false, but of course you can do the same in <em>both</em> success <em>and</em> failure.</p>
+<h2 id="catch-general-errors">Catch general errors</h2>
+<ol>
+<li>try to handle errors contextually<br>(for example the user searches for Foo video, but we have a 404 response then let&#39;s show a static text message on the ui about that)</li>
+<li>or fallback to a general error handler, that can<ol>
+<li>show a UI notification balloon for api related errors
+(using <code>yield put errorNotification</code> or similar)</li>
+<li>swallow js errors and emit them to the console</li>
+</ol>
+</li>
+</ol>
+<p>If you expect no errors or the error may have no visible outcome then still log the error to the console. I use the simple <a href="https://github.com/pimterry/loglevel">loglevel</a> library for logging (based on environment).</p>
+<p>Our general error handler (caught with <code>yield takeEvery(GENERAL_ERROR, generalErrorFlow)</code>) looked like this:</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-function"><span class="hljs-keyword">function</span>* <span class="hljs-title">generalErrorFlow</span>(<span class="hljs-params">action: IGeneralErrorAction</span>) </span>{
+  <span class="hljs-keyword">const</span> error = action.payload.error
+  <span class="hljs-keyword">if</span> (error <span class="hljs-keyword">instanceof</span> LoginRequiredError) {
+    <span class="hljs-keyword">return</span>
+  }
+
+  <span class="hljs-keyword">const</span> isServerError = <span class="hljs-keyword">typeof</span> error.code === <span class="hljs-string">'number'</span>
+
+  <span class="hljs-comment">// setup default messages (not yet translated)</span>
+  <span class="hljs-keyword">const</span> title = <span class="hljs-string">'Something went wrong :('</span>
+  <span class="hljs-keyword">const</span> fallbackMessage = <span class="hljs-string">'An unknown error has occurred.'</span>
+  <span class="hljs-keyword">const</span> caption = <span class="hljs-string">'Oh no! I will try again later!'</span>
+  <span class="hljs-keyword">let</span> description = isServerError ? error.message || fallbackMessage : fallbackMessage
+
+  <span class="hljs-comment">// we can add meaningful messages for some low level errors</span>
+  <span class="hljs-comment">// (errors that are not triggered by generic try-catches or by api error responses)</span>
+  <span class="hljs-keyword">if</span> (error.message === <span class="hljs-string">'Network Error'</span>) {
+    description = _t(<span class="hljs-string">'notificationCenterLabels.networkError'</span>)
+  }
+
+  <span class="hljs-comment">// a saga error handler would still catch and rethrow,</span>
+  <span class="hljs-comment">// so logging to error or throwing here is pointless</span>
+  <span class="hljs-keyword">if</span> (!isServerError) {
+    log.warn(<span class="hljs-string">`Unhandled javascript error. (<span class="hljs-subst">${error.name}</span>, <span class="hljs-subst">${error.message}</span>)`</span>)
+  }
+
+  <span class="hljs-keyword">yield</span> put(
+    addNotificationActionCreator({ title, description, <span class="hljs-keyword">type</span>: NotificationType.Alert })
+  )
+}</code></pre>
+<p>As one can see the code above does some ugly heuristics (good old duck typing) - it should be fairly easy to differenciate proper errors with error types (like the newer <code>LoginRequiredError</code>), at least for errors thrown via our axios wrapper (versus &quot;real&quot; javascript errors). I leave this exercise to the reader this time.</p>
+</div>
+
+</body>
+</html>

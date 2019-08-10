@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>title</title>
+    <link rel="stylesheet" href="../main.css?v=1">
+    <link rel="stylesheet" href="../hljs-theme.css">
+    <link rel="stylesheet" href="../markdown.css">
+    <!--<script src="script.js"></script>-->
+</head>
+<body>
+
+<div class="markdown-body"><h1 id="xmlhttp-requests">Xmlhttp requests</h1>
+<h2 id="token-storage">Token storage</h2>
+<h2 id="ajax-calls">Ajax calls</h2>
+<p>We have been using <a href="https://github.com/axios/axios">axios</a> for the ajax calls, but handling the jwt token (and other things) are integrated in an axios wrapper.</p>
+<p>What should such a wrapper do?</p>
+<ul>
+<li>setup logging (<code>interceptors.request.use</code>, <code>interceptors.response.use</code>)</li>
+<li>wrap parameter handling, so all of these should be valid:<ul>
+<li><code>api.get(&#39;/foo&#39;, token)</code></li>
+<li><code>api.get(&#39;/foo/:id/bar&#39;, { id: 123 }, token)</code></li>
+<li><code>api.get(&#39;/foo&#39;, token)</code></li>
+<li><code>api.post(&#39;/foo&#39;, { bar: 1 }, token)</code></li>
+</ul>
+</li>
+<li>parse response headers (in the <code>then</code>) and append them to the returned object
+(like pagination, location etc. - while array and blob responses shall remain as is)</li>
+<li>catch early token errors (in the <code>catch</code>), like<ul>
+<li>invalid token responses</li>
+<li>unilateral token expiry on the server side (DB change, migration, etc.)</li>
+<li>an unrecoverable token error must trigger a forced logout
+(note: having logout as a route (<code>/logout</code>) is always a good idea)</li>
+<li>create a common throwable error (from response,
+like <code>response.message</code>, <code>response.code</code> etc.) and then throw it, so that
+the saga catch can deal with it</li>
+</ul>
+</li>
+</ul>
+<h2 id="calling-api-urls-in-a-discoverable-way">Calling api urls in a discoverable way</h2>
+<p>Since backend uses swagger to create documentation it was possible for us to parse the <em>openapi.json</em> and generate (via scripts in <em>package.json</em>) a list of functions:</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlDeleteDistributions = <span class="hljs-function">(<span class="hljs-params">{ distribution }</span>) =&gt;</span> <span class="hljs-string">`distributions/<span class="hljs-subst">${distribution}</span>`</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlDeleteFollowsIds = <span class="hljs-function">(<span class="hljs-params">{ user }</span>) =&gt;</span> <span class="hljs-string">`follows-ids/<span class="hljs-subst">${user}</span>`</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlGetCategoryFeed = <span class="hljs-function">(<span class="hljs-params">{ category }</span>) =&gt;</span> <span class="hljs-string">`category-feed/<span class="hljs-subst">${category}</span>`</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlGetCountries = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-string">`countries`</span>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlGetCountriesStates = <span class="hljs-function">(<span class="hljs-params">{ country }</span>) =&gt;</span> <span class="hljs-string">`countries/<span class="hljs-subst">${country}</span>/states`</span>
+<span class="hljs-comment">// ...</span></code></pre>
+<ul>
+<li>by generating individual functions, treeshaking may throw the unused ones out from the build</li>
+<li>parameter names are taken from <em>openapi.json</em> unmodified (so while backend uses the <code>user</code>, we might use <code>{user: userId}</code> but I didn&#39;t want to write a map for that)</li>
+<li>any unused function will be highlighted by the IDE</li>
+<li>any url (from console) is immediately discoverable throughout the code (unlike string urls hardcoded)</li>
+<li>adding a <code>prettier-ignore-start</code> header to the file may be a good idea (though prettier ignored it)</li>
+</ul>
+<h2 id="swagger-and-generating-metadata">Swagger and generating metadata</h2>
+<p>Depending on how the backend uses swagger it&#39;s possible to extract metadata from <em>openapi.json</em>, why this didn&#39;t work for us?</p>
+<ul>
+<li>enums were missing from the docs (but that might have been our fault)</li>
+<li>access levels are not indicated in the json, meaning:<ul>
+<li>we have an elevation process (a user can upgrade his or her token and be granted admin, moderator or finance rights)
+there is no way to indicate certain properties are only valid for certain rights</li>
+<li>logged in user may get a broader list of properties on an endpoint than a logged out one</li>
+<li>the current user&#39;s &quot;user object&quot; has more information than other users&#39; (but essentially they are the same object types)</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</body>
+</html>

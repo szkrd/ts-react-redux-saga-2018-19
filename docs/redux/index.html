@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>title</title>
+    <link rel="stylesheet" href="../main.css?v=1">
+    <link rel="stylesheet" href="../hljs-theme.css">
+    <link rel="stylesheet" href="../markdown.css">
+    <!--<script src="script.js"></script>-->
+</head>
+<body>
+
+<div class="markdown-body"><h1 id="redux">Redux</h1>
+<h2 id="payloads-actions-actioncreators">Payloads, actions, actionCreators</h2>
+<p>Writing actions with TS is a major pain. We decided to keep the <strong>action name</strong> + <strong>payload interface</strong> + <strong>action interface</strong> + <strong>action creator</strong> &quot;packs&quot; together (most tutorials keep them separated in groups by type):</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-comment">// getChannelPage action</span>
+<span class="hljs-comment">// ---------------------</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> GET_CHANNEL_PAGE = <span class="hljs-string">'channel/GET_CHANNEL_PAGE'</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> IGetChannelPagePayload {
+  userId: <span class="hljs-built_in">string</span>
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> GetChannelPageAction {
+  <span class="hljs-keyword">type</span>: <span class="hljs-keyword">typeof</span> GET_CHANNEL_PAGE
+  payload: IGetChannelPagePayload
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> getChannelPageActionCreator = (
+  payload: IGetChannelPagePayload
+): <span class="hljs-function"><span class="hljs-params">GetChannelPageAction</span> =&gt;</span> ({ <span class="hljs-keyword">type</span>: GET_CHANNEL_PAGE, payload })</code></pre>
+<ul>
+<li>see how the <code>typeof</code> (TS) operator helps</li>
+<li>the action&#39;s name is not just a string, but a constant</li>
+<li>action creators are easier to use both in sagas and in components (containers), than dispatching a payload and and an event name (action type, in redux terms) </li>
+</ul>
+<h2 id="ide-help-for-writing-actions">IDE help for writing actions</h2>
+<p>Writing an <strong>action name</strong> + <strong>payload interface</strong> + <strong>action interface</strong> + <strong>action creator</strong> &quot;pack&quot; is painful, but most of it can be automated with snippets (live templates in WebStorm):</p>
+<h3 id="actionvoid-action-without-payload">actionvoid (action without payload)</h3>
+<pre class="hljs"><code class="language-text">// $NAME$ action
+// -------------------------------
+export const $NAME_SCREAMINGSNAKE$ = &#39;$PATH$$NAME_SCREAMINGSNAKE$&#39;
+export interface $NAME_PASCAL$Action {
+    type: typeof $NAME_SCREAMINGSNAKE$
+}
+export const $NAME$Action$CREATOR$ =
+    (): $NAME_PASCAL$Action =&gt; ({ type: $NAME_SCREAMINGSNAKE$ })</code></pre>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Expression</th>
+<th>Default value</th>
+<th>Skip if defined</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NAME</td>
+<td></td>
+<td>&quot;fooBar&quot;</td>
+<td>[ ]</td>
+</tr>
+<tr>
+<td>PATH</td>
+<td></td>
+<td></td>
+<td>[ ]</td>
+</tr>
+<tr>
+<td>NAME_PASCAL</td>
+<td>capitalize(NAME)</td>
+<td></td>
+<td>[x]</td>
+</tr>
+<tr>
+<td>NAME_SCREAMINGSNAKE</td>
+<td>capitalizeAndUnderscore(NAME)</td>
+<td></td>
+<td>[x]</td>
+</tr>
+<tr>
+<td>CREATOR</td>
+<td></td>
+<td>&quot;Creator&quot;</td>
+<td>[ ]</td>
+</tr>
+</tbody></table>
+<h3 id="actionpay-action-with-payload">actionpay (action with payload)</h3>
+<pre class="hljs"><code class="language-text">// $NAME$ action
+// -------------------------------
+export const $NAME_SCREAMINGSNAKE$ = &#39;$PATH$$NAME_SCREAMINGSNAKE$&#39;
+export interface $PAYLOAD$ {
+    $PAYLOAD_EXAMPLE$
+}
+export interface $NAME_PASCAL$Action {
+    type: typeof $NAME_SCREAMINGSNAKE$
+    payload: $PAYLOAD$
+}
+export const $NAME$Action$CREATOR$ =
+    (payload: $PAYLOAD$): $NAME_PASCAL$Action =&gt; ({ type: $NAME_SCREAMINGSNAKE$, payload })</code></pre>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Expression</th>
+<th>Default value</th>
+<th>Skip if defined</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NAME</td>
+<td></td>
+<td>&quot;fooBar&quot;</td>
+<td>[ ]</td>
+</tr>
+<tr>
+<td>PATH</td>
+<td></td>
+<td>&quot;Qux/&quot;</td>
+<td>[ ]</td>
+</tr>
+<tr>
+<td>CREATOR</td>
+<td></td>
+<td>&quot;Creator&quot;</td>
+<td>[ ]</td>
+</tr>
+<tr>
+<td>PAYLOAD</td>
+<td>concat(&quot;I&quot;,capitalize(NAME),&quot;Payload&quot;)</td>
+<td></td>
+<td>[x]</td>
+</tr>
+<tr>
+<td>NAME_PASCAL</td>
+<td>capitalize(NAME)</td>
+<td></td>
+<td>[x]</td>
+</tr>
+<tr>
+<td>NAME_SCREAMINGSNAKE</td>
+<td>capitalizeAndUnderscore(NAME)</td>
+<td></td>
+<td>[x]</td>
+</tr>
+<tr>
+<td>PAYLOAD_EXAMPLE</td>
+<td></td>
+<td>&quot;baz: string&quot;</td>
+<td>[ ]</td>
+</tr>
+</tbody></table>
+<h2 id="exported-action-types">Exported action types</h2>
+<p>At the end of the file we export the list of actions:</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> TChannelPageActions =
+  | GetChannelPageAction
+  | LeaveChannelPageAction
+  | ...</code></pre>
+<p>You can add &quot;other&quot; actions (from other stores) here, but probably it&#39;s better to use them in the reducer with the type parameter:</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> channelPageReducer: Reducer&lt;ChannelPageState&gt; = (
+  state = INITIAL_STATE,
+  action: TChannelPageActions | TVideoPageActions
+): <span class="hljs-function"><span class="hljs-params">ChannelPageState</span> =&gt;</span> {</code></pre>
+<h2 id="reducer-switch-case">Reducer switch-case</h2>
+<p>Context in switch case structures is tricky, we prefer plain old conditionals, where the variable scope is clear and there is no fallthrough:</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">if</span> (action.type === CHANNEL_PAGE_DONATE_SUCCESS) {
+  <span class="hljs-keyword">const</span> { isOwnPage, creditsRaised } = state
+  <span class="hljs-keyword">const</span> { amount } = action.payload
+  <span class="hljs-keyword">if</span> (isOwnPage) {
+    <span class="hljs-keyword">return</span> state
+  }
+  <span class="hljs-keyword">return</span> {
+    ...state,
+    creditsRaised: creditsRaised + amount * DONATION_MULTIPLIER
+  }
+}</code></pre>
+<p>In this example the <code>amount</code> variable is tied to the conditional&#39;s block scope (with switch case it would be on the level of the enclosing switch).</p>
+<h2 id="initial-state">Initial state</h2>
+<p>Using a <code>class</code> type to define a store&#39;s initial state makes life easier, since we won&#39;t need another interface for the structure definition:</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">class</span> IPlayerState {
+  distributionId?: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>
+  source?: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>
+  videoId?: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>
+  fatalError?: <span class="hljs-built_in">boolean</span> = <span class="hljs-literal">false</span>
+}
+
+<span class="hljs-keyword">const</span> INITIAL_STATE = <span class="hljs-keyword">new</span> IPlayerState()
+
+<span class="hljs-keyword">const</span> playerReducer: Reducer&lt;IPlayerState&gt; = (
+  state: IPlayerState = INITIAL_STATE,
+  action: TPlayerAction | TVideoPageAction | TFeedAction
+): <span class="hljs-function"><span class="hljs-params">IPlayerState</span> =&gt;</span> {</code></pre>
+<h2 id="reducer-usage">Reducer usage</h2>
+<p>Redux will &quot;run&quot; all the reducers, so if you place anything above the switch/case (or the first conditional) block that will <strong>always</strong> be executed.</p>
+<p>It&#39;s very easy to do an <code>action.payload.foobar</code> check, which in turn will break (unless all your actions throughout the app has a foobar payload item, but I doubt that).</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> creditsReducer: Reducer&lt;ICreditsState&gt; = (
+  state: ICreditsState = INITIAL_STATE,
+  action: TCreditsAction
+): <span class="hljs-function"><span class="hljs-params">ICreditsState</span> =&gt;</span> {
+
+  <span class="hljs-comment">// DANGER ZONE</span>
+  <span class="hljs-comment">// don't try to do anything clever here</span>
+
+  <span class="hljs-keyword">switch</span> (action.type) {
+    <span class="hljs-keyword">case</span> GET_USER_REQUEST:</code></pre>
+<h2 id="flushing-all-the-stores">Flushing all the stores</h2>
+<p>On logout you probably want to reset the full store. Listening to a LOGOUT event in every reducer is <a href="https://twitter.com/dan_abramov/status/703035591831773184">not needed</a>:</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> reducer = <span class="hljs-function">(<span class="hljs-params">state: IState, action</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (action.type === LOGOUT_FINISHED) {
+    state = <span class="hljs-literal">undefined</span>
+  }
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> reducer</code></pre>
+</div>
+
+</body>
+</html>
