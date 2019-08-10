@@ -1,7 +1,7 @@
 {
   "name": "ts-react-redux-saga-2018-19",
   "version": "1.0.0",
-  "buildVersion": 2,
+  "buildVersion": 3,
   "description": "TODO: add meaningful intro here",
   "main": "index.js",
   "directories": {

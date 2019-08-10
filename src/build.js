@@ -66,18 +66,20 @@ async function main () {
     const baseName = path.basename(source)
     const extName = path.extname(baseName).replace(/^\./, '')
 
-    // mark selected item in menu
-    menuItems = menuItems.map(item => ({
-      ...item,
-      selected: item.original === source
-    }))
-
     // create target directories (book -> docs)
     let target = source.replace(/^book/, 'docs')
     const depth = target.split(path.sep).length - 1
     const relativeRoot = new Array(depth).join('../')
     const targetPathOnly = target.replace(new RegExp(escapeRex(baseName) + '$'), '')
     await fsMkDir(targetPathOnly, { recursive: true })
+
+    // mark selected item in menu, fix relative paths
+    const localMenuItems = menuItems.map(item => ({
+      ...item,
+      selected: item.original === source,
+      url: (relativeRoot + item.url).replace('/./', '/')
+    }))
+    console.log(localMenuItems)
 
     // prep the ejs renderer, fix paths
     let ejsSource = fs.readFileSync('./overlay/index.ejs', 'utf-8')
@@ -96,7 +98,7 @@ async function main () {
       md = md.replace(/<pre>/g, '<pre class="hljs">') // such custom renderer, very lazy
       let headings = 0
       md = md.replace(/<h2[^>]*>/g, (sub) => `<h2><a name="${headings++}">`) // it's butt ugly, but valid :D
-      await fsWriteFile(target, ejsTemplate({ md, v: buildVersion, root: relativeRoot, menuItems }))
+      await fsWriteFile(target, ejsTemplate({ md, v: buildVersion, root: relativeRoot, menuItems: localMenuItems }))
     }
 
     // copy binaries
