@@ -2,7 +2,7 @@
 
 ## Payloads, actions, actionCreators
 
-Writing actions with TS is a major pain. We decided to keep the **action name** + **payload interface** + **action interface** + **action creator** "packs" together:
+Writing actions with TS is a major pain. We decided to keep the **action name** + **payload interface** + **action interface** + **action creator** "packs" together (most tutorials keep them separated in groups by type):
 
 ```ts
 // getChannelPage action
@@ -24,7 +24,7 @@ export const getChannelPageActionCreator = (
 ): GetChannelPageAction => ({ type: GET_CHANNEL_PAGE, payload })
 ```
 
-- see how the `typeof` operator helps
+- see how the `typeof` (TS) operator helps
 - the action's name is not just a string, but a constant
 - action creators are easier to use both in sagas and in components (containers), than dispatching a payload and and an event name (action type, in redux terms) 
 
@@ -91,7 +91,7 @@ export type TChannelPageActions =
   | ...
 ```
 
-You can add "other" actions (from other stores) here, but probably it's better to use them in the reducer with the parameter:
+You can add "other" actions (from other stores) here, but probably it's better to use them in the reducer with the type parameter:
 
 ```ts
 const channelPageReducer: Reducer<ChannelPageState> = (
@@ -118,7 +118,7 @@ if (action.type === CHANNEL_PAGE_DONATE_SUCCESS) {
 }
 ```
 
-In this example the amount variable is tied to the conditional's block scope (withc switch case it would be on the level of the enclosing switch).
+In this example the `amount` variable is tied to the conditional's block scope (with switch case it would be on the level of the enclosing switch).
 
 ## Initial state
 

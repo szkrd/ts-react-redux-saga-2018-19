@@ -35,7 +35,8 @@ The IDE will show you proper types on hover, so it's easy to copy-paste that:
 
 I have a `utils/redux` folder where I keep (among other things) helper saga fragments. If you have the same code repeated over and over again in your saga, you can split that out into a small generator function.
 
-Example:  
+### Example
+ 
 if a non logged in user clicks on an action that requires login, we show a small notification with a link to the login page (and we break the current saga flow, forcing execution into the catch block).
 
 ```ts
@@ -47,10 +48,6 @@ export default function* loginRequiredNotificationSaga(message: string) {
   }
 }
 ```
-
-## Ajax calls
-
-TODO (see apiUrlGetCountriesStates below)
 
 ## Try-catch-finally
 
@@ -91,7 +88,7 @@ to false, but of course you can do the same in _both_ success _and_ failure.
 
 If you expect no errors or the error may have no visible outcome then still log the error to the console. I use the simple [loglevel](https://github.com/pimterry/loglevel) library for logging (based on environment).
 
-Our general error handler (caught with `yield takeEvery(GENERAL_ERROR, generalErrorFlow)`):
+Our general error handler (caught with `yield takeEvery(GENERAL_ERROR, generalErrorFlow)`) looked like this:
 
 ```ts
 function* generalErrorFlow(action: IGeneralErrorAction) {
@@ -125,3 +122,5 @@ function* generalErrorFlow(action: IGeneralErrorAction) {
   )
 }
 ```
+
+As one can see the code above does some ugly heuristics (good old duck typing) - it should be fairly easy to differenciate proper errors with error types (like the newer `LoginRequiredError`), at least for errors thrown via our axios wrapper (versus "real" javascript errors). I leave this exercise to the reader this time.
