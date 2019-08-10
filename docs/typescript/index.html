@@ -3,15 +3,94 @@
 <head>
     <meta charset="utf-8">
     <title>title</title>
-    <link rel="stylesheet" href="../main.css?v=1">
+    <link rel="stylesheet" href="../main.css?v=2">
     <link rel="stylesheet" href="../hljs-theme.css">
     <link rel="stylesheet" href="../markdown.css">
     <!--<script src="script.js"></script>-->
 </head>
 <body>
-
+<div class="menu">
+    
+        <div class="menu-item depth-1 ">
+            •
+            <a href="./index.html">TOC</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./debugging/index.html">Debugging</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./react/index.html">React</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./redux/index.html">Redux</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./saga/index.html">Saga</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 selected">
+            •
+            <a href="./typescript/index.html">Typescript</a>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#0">
+                        Typescript is not javascript
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#1">
+                        Libraries without typescript definitions
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#2">
+                        Using objectGet, pick and similar helpers
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#3">
+                        Where to put metadata
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#4">
+                        Classes vs. Interfaces
+                    </a>
+                </div>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./xmlhttp/index.html">Xmlhttp requests</a>
+            
+        </div>
+    
+</div>
 <div class="markdown-body"><h1 id="typescript">Typescript</h1>
-<h2 id="typescript-is-not-javascript">Typescript is not javascript</h2>
+<h2><a name="0">Typescript is not javascript</h2>
 <blockquote>
 <p>“Any fool can write code that a computer can understand.<br>Good programmers write code that humans can understand.”<br><em>Martin Fowler</em> </p>
 </blockquote>
@@ -24,25 +103,25 @@ Know when type hinting is needed and when it isn&#39;t.</li>
 <li>Avoid typecasting (<code>as Foobar</code>) and <code>any</code> - they will mess up dependency detection real bad.</li>
 <li>Use the TS builtin <code>keyof</code> and <code>typeof</code>. TS typeof is NOT the same as JS typeof! </li>
 </ol>
-<h2 id="libraries-without-typescript-definitions">Libraries without typescript definitions</h2>
+<h2><a name="1">Libraries without typescript definitions</h2>
 <p>You can fallback to the <a href="http://definitelytyped.org/">Definitely Typed</a> site to add extra type definitions, BUT there is no guarantee that the 3rd party types will be in sync with the library you are using!</p>
 <p>In fact I rarely managed to find a <code>@types</code> definition that had the same version as the library I tried to use it with.</p>
 <p>It is better to copy-paste JS code from Stackoverflow and rewrite it to TS, than installing a dependency without its very own type definition.</p>
-<h2 id="using-objectget-pick-and-similar-helpers">Using objectGet, pick and similar helpers</h2>
+<h2><a name="2">Using objectGet, pick and similar helpers</h2>
 <p>Don&#39;t. TS 3.7 <a href="https://github.com/microsoft/TypeScript/issues/16">might support</a> the &quot;elvis operator&quot; (aka. safe navigation, null coalescence).</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> x = { y: { z: <span class="hljs-literal">null</span>, q: <span class="hljs-literal">undefined</span> } };
 <span class="hljs-built_in">console</span>.log(x?.y?.z?.foo);</code></pre>
 <p>Until then... I don&#39;t know. <code>Object.get</code>, <code>_.get</code>, <code>oGet</code>, <code>objectGet</code> and others will break code discoverability.</p>
 <p>If <code>X</code> interface has A, B, C props and <code>Y</code> interface has A and B then even if you write a <code>pick</code> function with proper type hinting, picking A &amp; B from <code>X</code> will <strong>not</strong> magically convert it to interface <code>Y</code>.</p>
 <p>If you want to pick interface properties to create a type, you can use the <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html#picktk">Pick utility-type</a> but probably that&#39;s not what you are looking for.</p>
-<h2 id="where-to-put-metadata">Where to put metadata</h2>
+<h2><a name="3">Where to put metadata</h2>
 <p>Pure typescript metadata (interfaces, enums, types) may be connected to certain functions (like a <code>UserStore</code> type to a reducer), in that case we decided to put the metadata next to the code, this is simple.</p>
 <p>Where to put metadata that is repeated throughout the code? Honestly, <em>I don&#39;t know</em>.</p>
 <p>In typescript enums, const enums, constants, classes, interfaces and types usually overlap somewhat...
 even models are not that simple, since we have ApiModels (like <code>ApiUser</code>) and frontend models (like <code>User</code>).</p>
 <p>All I can say is that if you keep the code <strong>discoverable</strong> then at least you can always find these files, no matter where they are.</p>
 <p>In the end we had <em>constants</em>, <em>enums</em>, <em>models</em> for these things. It was not perfect, but it did not hurt enough to come up with something better.</p>
-<h2 id="classes-vs-interfaces">Classes vs. Interfaces</h2>
+<h2><a name="4">Classes vs. Interfaces</h2>
 <p>Typescript differentiates through shapes only (unlike a &quot;real&quot; language), so an <em>interface</em> with <code>A: string</code>, <code>B: string</code>, <code>C: string</code> will be the &quot;same&quot; as a <em>class</em> with the same A, B and C properties for typescript&#39;s compiler.</p>
 <p>This means that where one would use an interface it&#39;s possible to use a class, which is much more flexible (except for &quot;mixing&quot; items, since TS doesn&#39;t have multiple inheritance):</p>
 <ul>

@@ -2,40 +2,6 @@
   font-family: "Lucida Console", Monaco, monospace;
 }
 
-:root {
-  --color-a: #005cc5;               /* #005cc5; */
-  --color-b: #032f62;               /* #032f62; */
-  --color-c: #0366d6;               /* #0366d6; */
-  --color-d: #1b1f23;               /* #1b1f23; */
-  --color-e: #22863a;               /* #22863a; */
-  --color-f: #24292e;               /* #24292e; */
-  --color-g: #444d56;               /* #444d56; */
-  --color-h: #586069;               /* #586069; */
-  --color-i: #6a737d;               /* #6a737d; */
-  --color-j: #6a737d;               /* #6a737d; */
-  --color-k: #6f42c1;               /* #6f42c1; */
-  --color-l: #735c0f;               /* #735c0f; */
-  --color-m: #959da5;               /* #959da5; */
-  --color-n: #b31d28;               /* #b31d28; */
-  --color-o: #c6cbd1;               /* #c6cbd1; */
-  --color-p: #d73a49;               /* #d73a49; */
-  --color-q: #e1e4e8;               /* #e1e4e8; */
-  --color-r: #e36209;               /* #e36209; */
-  --color-s: #eeeeee;               /* #eee; */
-  --color-t: #f0fff4;               /* #f0fff4; */
-  --color-u: #f6f8fa;               /* #f6f8fa; */
-  --color-v: #fafbfc;               /* #fafbfc; */
-  --color-w: #fafbfc;               /* #fafbfc; */
-  --color-x: #ffebda;               /* #ffebda; */
-  --color-y: #ffeef0;               /* #ffeef0; */
-  --color-z: #ffffff;                  /* #fff; */
-  --color-1: inherit;               /* inherit; */
-  --color-2: rgba(27,31,35,.05);    /* rgba(27,31,35,.05); */
-  --color-3: rgba(27,31,35,.3);     /* rgba(27,31,35,.3); */
-  --color-4: rgba(27,31,35,.6);     /* rgba(27,31,35,.6); */
-  --color-5: transparent;           /* transparent; */
-}
-
 /*
 Original github markdown style by
 Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
@@ -623,7 +589,7 @@ Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
 
 .markdown-body h1,
 .markdown-body h2 {
-  border-bottom: 1px solid #eaecef;
+  border-bottom: 1px solid var(--color-0);
   padding-bottom: .3em;
 }
 

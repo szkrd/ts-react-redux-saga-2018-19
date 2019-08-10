@@ -4,6 +4,7 @@ const path = require('path')
 const hljs = require('highlight.js')
 const marked = promisify(require('marked'))
 const ejs = require('ejs')
+const sortBy = require('sort-by')
 
 const fsCopyFile = promisify(fs.copyFile)
 const fsReadDir = promisify(fs.readdir)
@@ -16,8 +17,6 @@ marked.setOptions({
     return lang === 'text' ? code : hljs.highlight(lang, code).value
   }
 })
-
-// ---
 
 function escapeRex (s = '') {
   return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
@@ -39,10 +38,39 @@ async function main () {
   const packageJson = JSON.parse(fs.readFileSync('./package.json'))
   const { buildVersion } = packageJson
   const list = await walkDir('./book')
+
+  // build common menu
+  let menuItems = list
+    .filter(s => s.endsWith('.md'))
+    .map(s => {
+      const original = s
+      const lines = (fs.readFileSync(s, 'utf-8')).split('\n')
+      let title = lines.find(line => line.startsWith('# ')).replace(/^# /, '') || s[s.length - 2] || 'TOC'
+      const sections = (lines.filter(line => line.startsWith('## ')) || []).map(l => l.replace(/^## /, ''))
+      title = title.replace(/^# /, '')
+      s = s.split(path.sep).slice(1)
+      return {
+        original,
+        selected: false,
+        depth: s.length,
+        title: title.replace(/^#\s+/, ''),
+        sections,
+        url: './' + s.join('/').replace(/README\.md$/, 'index.html').replace(/\.md$/, '.html')
+      }
+    })
+  menuItems = menuItems.sort(sortBy('depth', 'url'))
+
+  // iterate through files
   for (let i = 0; i < list.length; i++) {
     const source = list[i]
     const baseName = path.basename(source)
     const extName = path.extname(baseName).replace(/^\./, '')
+
+    // mark selected item in menu
+    menuItems = menuItems.map(item => ({
+      ...item,
+      selected: item.original === source
+    }))
 
     // create target directories (book -> docs)
     let target = source.replace(/^book/, 'docs')
@@ -66,7 +94,9 @@ async function main () {
       const contents = fs.readFileSync(source, 'utf-8')
       let md = await marked(contents)
       md = md.replace(/<pre>/g, '<pre class="hljs">') // such custom renderer, very lazy
-      await fsWriteFile(target, ejsTemplate({ md, v: buildVersion, root: relativeRoot }))
+      let headings = 0
+      md = md.replace(/<h2[^>]*>/g, (sub) => `<h2><a name="${headings++}">`) // it's butt ugly, but valid :D
+      await fsWriteFile(target, ejsTemplate({ md, v: buildVersion, root: relativeRoot, menuItems }))
     }
 
     // copy binaries

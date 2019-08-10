@@ -3,15 +3,108 @@
 <head>
     <meta charset="utf-8">
     <title>title</title>
-    <link rel="stylesheet" href="../main.css?v=1">
+    <link rel="stylesheet" href="../main.css?v=2">
     <link rel="stylesheet" href="../hljs-theme.css">
     <link rel="stylesheet" href="../markdown.css">
     <!--<script src="script.js"></script>-->
 </head>
 <body>
-
+<div class="menu">
+    
+        <div class="menu-item depth-1 ">
+            •
+            <a href="./index.html">TOC</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./debugging/index.html">Debugging</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./react/index.html">React</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 selected">
+            •
+            <a href="./redux/index.html">Redux</a>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#0">
+                        Payloads, actions, actionCreators
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#1">
+                        IDE help for writing actions
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#2">
+                        Exported action types
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#3">
+                        Reducer switch-case
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#4">
+                        Initial state
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#5">
+                        Reducer usage
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#6">
+                        Flushing all the stores
+                    </a>
+                </div>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./saga/index.html">Saga</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./typescript/index.html">Typescript</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./xmlhttp/index.html">Xmlhttp requests</a>
+            
+        </div>
+    
+</div>
 <div class="markdown-body"><h1 id="redux">Redux</h1>
-<h2 id="payloads-actions-actioncreators">Payloads, actions, actionCreators</h2>
+<h2><a name="0">Payloads, actions, actionCreators</h2>
 <p>Writing actions with TS is a major pain. We decided to keep the <strong>action name</strong> + <strong>payload interface</strong> + <strong>action interface</strong> + <strong>action creator</strong> &quot;packs&quot; together (most tutorials keep them separated in groups by type):</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-comment">// getChannelPage action</span>
 <span class="hljs-comment">// ---------------------</span>
@@ -35,7 +128,7 @@
 <li>the action&#39;s name is not just a string, but a constant</li>
 <li>action creators are easier to use both in sagas and in components (containers), than dispatching a payload and and an event name (action type, in redux terms) </li>
 </ul>
-<h2 id="ide-help-for-writing-actions">IDE help for writing actions</h2>
+<h2><a name="1">IDE help for writing actions</h2>
 <p>Writing an <strong>action name</strong> + <strong>payload interface</strong> + <strong>action interface</strong> + <strong>action creator</strong> &quot;pack&quot; is painful, but most of it can be automated with snippets (live templates in WebStorm):</p>
 <h3 id="actionvoid-action-without-payload">actionvoid (action without payload)</h3>
 <pre class="hljs"><code class="language-text">// $NAME$ action
@@ -151,7 +244,7 @@ export const $NAME$Action$CREATOR$ =
 <td>[ ]</td>
 </tr>
 </tbody></table>
-<h2 id="exported-action-types">Exported action types</h2>
+<h2><a name="2">Exported action types</h2>
 <p>At the end of the file we export the list of actions:</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> TChannelPageActions =
   | GetChannelPageAction
@@ -162,7 +255,7 @@ export const $NAME$Action$CREATOR$ =
   state = INITIAL_STATE,
   action: TChannelPageActions | TVideoPageActions
 ): <span class="hljs-function"><span class="hljs-params">ChannelPageState</span> =&gt;</span> {</code></pre>
-<h2 id="reducer-switch-case">Reducer switch-case</h2>
+<h2><a name="3">Reducer switch-case</h2>
 <p>Context in switch case structures is tricky, we prefer plain old conditionals, where the variable scope is clear and there is no fallthrough:</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-keyword">if</span> (action.type === CHANNEL_PAGE_DONATE_SUCCESS) {
   <span class="hljs-keyword">const</span> { isOwnPage, creditsRaised } = state
@@ -176,7 +269,7 @@ export const $NAME$Action$CREATOR$ =
   }
 }</code></pre>
 <p>In this example the <code>amount</code> variable is tied to the conditional&#39;s block scope (with switch case it would be on the level of the enclosing switch).</p>
-<h2 id="initial-state">Initial state</h2>
+<h2><a name="4">Initial state</h2>
 <p>Using a <code>class</code> type to define a store&#39;s initial state makes life easier, since we won&#39;t need another interface for the structure definition:</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-keyword">class</span> IPlayerState {
   distributionId?: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>
@@ -191,7 +284,7 @@ export const $NAME$Action$CREATOR$ =
   state: IPlayerState = INITIAL_STATE,
   action: TPlayerAction | TVideoPageAction | TFeedAction
 ): <span class="hljs-function"><span class="hljs-params">IPlayerState</span> =&gt;</span> {</code></pre>
-<h2 id="reducer-usage">Reducer usage</h2>
+<h2><a name="5">Reducer usage</h2>
 <p>Redux will &quot;run&quot; all the reducers, so if you place anything above the switch/case (or the first conditional) block that will <strong>always</strong> be executed.</p>
 <p>It&#39;s very easy to do an <code>action.payload.foobar</code> check, which in turn will break (unless all your actions throughout the app has a foobar payload item, but I doubt that).</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> creditsReducer: Reducer&lt;ICreditsState&gt; = (
@@ -204,7 +297,7 @@ export const $NAME$Action$CREATOR$ =
 
   <span class="hljs-keyword">switch</span> (action.type) {
     <span class="hljs-keyword">case</span> GET_USER_REQUEST:</code></pre>
-<h2 id="flushing-all-the-stores">Flushing all the stores</h2>
+<h2><a name="6">Flushing all the stores</h2>
 <p>On logout you probably want to reset the full store. Listening to a LOGOUT event in every reducer is <a href="https://twitter.com/dan_abramov/status/703035591831773184">not needed</a>:</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> reducer = <span class="hljs-function">(<span class="hljs-params">state: IState, action</span>) =&gt;</span> {
   <span class="hljs-keyword">if</span> (action.type === LOGOUT_FINISHED) {

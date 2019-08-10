@@ -3,16 +3,88 @@
 <head>
     <meta charset="utf-8">
     <title>title</title>
-    <link rel="stylesheet" href="../main.css?v=1">
+    <link rel="stylesheet" href="../main.css?v=2">
     <link rel="stylesheet" href="../hljs-theme.css">
     <link rel="stylesheet" href="../markdown.css">
     <!--<script src="script.js"></script>-->
 </head>
 <body>
-
+<div class="menu">
+    
+        <div class="menu-item depth-1 ">
+            •
+            <a href="./index.html">TOC</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./debugging/index.html">Debugging</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./react/index.html">React</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./redux/index.html">Redux</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./saga/index.html">Saga</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 ">
+            •
+            <a href="./typescript/index.html">Typescript</a>
+            
+        </div>
+    
+        <div class="menu-item depth-2 selected">
+            •
+            <a href="./xmlhttp/index.html">Xmlhttp requests</a>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#0">
+                        Token storage
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#1">
+                        Ajax calls
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#2">
+                        Calling api urls in a discoverable way
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#3">
+                        Swagger and generating metadata
+                    </a>
+                </div>
+            
+        </div>
+    
+</div>
 <div class="markdown-body"><h1 id="xmlhttp-requests">Xmlhttp requests</h1>
-<h2 id="token-storage">Token storage</h2>
-<h2 id="ajax-calls">Ajax calls</h2>
+<h2><a name="0">Token storage</h2>
+<h2><a name="1">Ajax calls</h2>
 <p>We have been using <a href="https://github.com/axios/axios">axios</a> for the ajax calls, but handling the jwt token (and other things) are integrated in an axios wrapper.</p>
 <p>What should such a wrapper do?</p>
 <ul>
@@ -37,7 +109,7 @@ the saga catch can deal with it</li>
 </ul>
 </li>
 </ul>
-<h2 id="calling-api-urls-in-a-discoverable-way">Calling api urls in a discoverable way</h2>
+<h2><a name="2">Calling api urls in a discoverable way</h2>
 <p>Since backend uses swagger to create documentation it was possible for us to parse the <em>openapi.json</em> and generate (via scripts in <em>package.json</em>) a list of functions:</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlDeleteDistributions = <span class="hljs-function">(<span class="hljs-params">{ distribution }</span>) =&gt;</span> <span class="hljs-string">`distributions/<span class="hljs-subst">${distribution}</span>`</span>
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlDeleteFollowsIds = <span class="hljs-function">(<span class="hljs-params">{ user }</span>) =&gt;</span> <span class="hljs-string">`follows-ids/<span class="hljs-subst">${user}</span>`</span>
@@ -52,7 +124,7 @@ the saga catch can deal with it</li>
 <li>any url (from console) is immediately discoverable throughout the code (unlike string urls hardcoded)</li>
 <li>adding a <code>prettier-ignore-start</code> header to the file may be a good idea (though prettier ignored it)</li>
 </ul>
-<h2 id="swagger-and-generating-metadata">Swagger and generating metadata</h2>
+<h2><a name="3">Swagger and generating metadata</h2>
 <p>Depending on how the backend uses swagger it&#39;s possible to extract metadata from <em>openapi.json</em>, why this didn&#39;t work for us?</p>
 <ul>
 <li>enums were missing from the docs (but that might have been our fault)</li>

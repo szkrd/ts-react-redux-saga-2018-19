@@ -1,7 +1,7 @@
 {
   "name": "ts-react-redux-saga-2018-19",
   "version": "1.0.0",
-  "buildVersion": 1,
+  "buildVersion": 2,
   "description": "TODO: add meaningful intro here",
   "main": "index.js",
   "directories": {
@@ -25,7 +25,8 @@
   "dependencies": {
     "ejs": "^2.6.2",
     "highlight.js": "^9.15.9",
-    "marked": "^0.7.0"
+    "marked": "^0.7.0",
+    "sort-by": "^1.2.0"
   },
   "devDependencies": {
     "serve": "^11.1.0"

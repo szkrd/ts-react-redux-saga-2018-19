@@ -1,3 +1,45 @@
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+:root {
+  --color-a: #005cc5;
+  --color-b: #032f62;
+  --color-c: #0366d6; /* links */
+  --color-d: #1b1f23;
+  --color-e: #22863a;
+  --color-f: #24292e;
+  --color-g: #444d56;
+  --color-h: #586069;
+  --color-i: #6a737d;
+  --color-j: #6a737d;
+  --color-k: #6f42c1;
+  --color-l: #735c0f;
+  --color-m: #959da5;
+  --color-n: #b31d28;
+  --color-o: #c6cbd1;
+  --color-p: #d73a49;
+  --color-q: #e1e4e8;
+  --color-r: #e36209;
+  --color-s: #eeeeee;
+  --color-t: #f0fff4;
+  --color-u: #f6f8fa;
+  --color-v: #fafbfc;
+  --color-w: #fafbfc;
+  --color-x: #ffebda;
+  --color-y: #ffeef0;
+  --color-z: #ffffff;
+  --color-0: #eaecef;
+  --color-1: inherit;
+  --color-2: rgba(27,31,35,.05);
+  --color-3: rgba(27,31,35,.3);
+  --color-4: rgba(27,31,35,.6);
+  --color-5: transparent;
+}
+
 html, body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: #fff;
@@ -5,4 +47,67 @@ html, body {
 
 body pre.hljs {
   background: #2b2b2b;
+}
+
+/* === MENU === */
+
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 270px;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.menu a, .menu .menu-item {
+  color: var(--color-c);
+  text-decoration: none;
+}
+
+.menu a:hover {
+  text-decoration: underline;
+}
+
+.menu .menu-item {
+  padding: 5px;
+}
+
+.menu .menu-item.selected > a {
+  font-weight: bold;
+}
+
+.menu .menu-section {
+  font-size: 13px;
+  padding: 3px 3px 3px 25px;
+  text-indent: -10px;
+  color: var(--color-g);
+}
+
+.menu-section:first-of-type {
+  padding-top: 5px;
+}
+
+.menu .menu-section a {
+  color: var(--color-g);
+}
+
+.menu .menu-item.depth-2 { margin-left: 10px; }
+.menu .menu-item.depth-3 { margin-left: 20px; }
+.menu .menu-item.depth-4 { margin-left: 30px; }
+.menu .menu-item.depth-5 { margin-left: 40px; }
+.menu .menu-item.depth-6 { margin-left: 50px; }
+
+/* === CONTENT === */
+
+.markdown-body {
+  width: calc(100% - 270px);
+  padding: 10px;
+  min-width: 500px;
+  margin-left: 270px;
+  background: #fff;
+  z-index: 1;
+  position: relative;
+  border-left: 1px solid var(--color-0);
 }

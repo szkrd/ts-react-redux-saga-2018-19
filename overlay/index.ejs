@@ -9,7 +9,22 @@
     <!--<script src="script.js"></script>-->
 </head>
 <body>
-
+<div class="menu">
+    <% menuItems.forEach (menuItem => { %>
+        <div class="menu-item depth-<%= menuItem.depth %> <%= menuItem.selected ? 'selected' : '' %>">
+            •
+            <a href="<%= menuItem.url %>"><%= menuItem.title %></a>
+            <% menuItem.selected && menuItem.sections.forEach((section, i) => {%>
+                <div class="menu-section depth-<%= menuItem.depth + 1 %>">
+                    ◦
+                    <a href="#<%= i %>">
+                        <%= section %>
+                    </a>
+                </div>
+            <% }) %>
+        </div>
+    <% }) %>
+</div>
 <div class="markdown-body"><%- md %></div>
 
 </body>
