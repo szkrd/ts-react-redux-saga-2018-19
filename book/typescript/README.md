@@ -66,3 +66,12 @@ This means that where one would use an interface it's possible to use a class, w
 While I'm not a fan of huge, single instance classes (file contains `class FooBar`, exports `new FooBar()`), using _private_ and _protected_ immediately tells the developer that a method is not meant to be called externally. I know, this is pretty easy to achieve with closures, but one _may_ decide to go for the expressive power of these keywords.
 
 I usually keep these "interface-like" classes as simple as possible (no constructor, no methods, just metadata and default values) - especially with reducer stores, where one would never expect a function property (keeping your redux store serializable is always a good thing). But then one wonders, where lies the boundary between JS objects, JS "classes", TS classes and TS interfaces - who knows?
+
+## Transpile to ES5
+
+Typescript can transpile to ES5 without the need for babel, so this means that babel is _not_ necessary at all.
+
+- use `"lib": ["es5", "es2015", "dom"]` in tsconfig
+- include a shim package in `index.tsx` (_core-js_ nowdays)
+- since ts has no polyfills, be careful with ES7 constructs ([array.includes](https://github.com/Microsoft/TypeScript/issues/2340) for example)
+- the ts compiler can use multiple cores ([happypack](https://github.com/amireh/happypack) and similar webpack hacks are not needed anymore)

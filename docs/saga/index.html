@@ -13,7 +13,7 @@
     
         <div class="menu-item depth-1 ">
             •
-            <a href="../index.html">TOC</a>
+            <a href="../index.html">Table of contents</a>
             
         </div>
     
@@ -41,35 +41,35 @@
             
                 <div class="menu-section depth-3">
                     ◦
-                    <a href="#0">
+                    <a href="#1">
                         Yield return types
                     </a>
                 </div>
             
                 <div class="menu-section depth-3">
                     ◦
-                    <a href="#1">
+                    <a href="#2">
                         Selector types
                     </a>
                 </div>
             
                 <div class="menu-section depth-3">
                     ◦
-                    <a href="#2">
+                    <a href="#3">
                         Helper sagas
                     </a>
                 </div>
             
                 <div class="menu-section depth-3">
                     ◦
-                    <a href="#3">
+                    <a href="#4">
                         Try-catch-finally
                     </a>
                 </div>
             
                 <div class="menu-section depth-3">
                     ◦
-                    <a href="#4">
+                    <a href="#5">
                         Catch general errors
                     </a>
                 </div>
@@ -90,7 +90,7 @@
     
 </div>
 <div class="markdown-body"><h1 id="saga">Saga</h1>
-<h2><a name="0">Yield return types</h2>
+<h2><a name="1">Yield return types</a></h2>
 <p>TS can&#39;t &quot;return&quot; types for interim yields, there are <a href="https://github.com/redux-saga/redux-saga/issues/884">hacks</a> of course.</p>
 <p>I usually use <a href="https://jsdoc.app/tags-returns.html">JSDoc</a> to indicate a return type so that the IDE can help me.</p>
 <pre class="hljs"><code class="language-ts"><span class="hljs-comment">/**
@@ -104,11 +104,11 @@
 }</code></pre>
 <p>Using inline docs (<code>ctrl + Q</code>) in WebStorm:</p>
 <p><img src="./images/webstorm-saga-yield-value.png" alt="use jsdoc helpers"></p>
-<h2><a name="1">Selector types</h2>
+<h2><a name="2">Selector types</a></h2>
 <p>Store selector paths through yield has no type information.</p>
 <p>The IDE will show you proper types on hover, so it&#39;s easy to copy-paste that:</p>
 <p><img src="./images/webstorm-yield-select-type.png" alt="copy paste select type"></p>
-<h2><a name="2">Helper sagas</h2>
+<h2><a name="3">Helper sagas</a></h2>
 <p>I have a <code>utils/redux</code> folder where I keep (among other things) helper saga fragments. If you have the same code repeated over and over again in your saga, you can split that out into a small generator function.</p>
 <h3 id="example">Example</h3>
 <p>if a non logged in user clicks on an action that requires login, we show a small notification with a link to the login page (and we break the current saga flow, forcing execution into the catch block).</p>
@@ -119,7 +119,7 @@
     <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> LoginRequiredError(<span class="hljs-string">'Login required.'</span>)
   }
 }</code></pre>
-<h2><a name="3">Try-catch-finally</h2>
+<h2><a name="4">Try-catch-finally</a></h2>
 <p>We usually have the try-catch-finally in all our flow functions (not just in the root saga), the other option is using a <a href="https://github.com/redux-saga/redux-saga/issues/1250#issuecomment-343750084">safe wrapper</a></p>
 <p>When I use try-catch-finally:</p>
 <ol>
@@ -140,7 +140,7 @@
 }</code></pre>
 <p>A typical use case for finally is cleaning up the state, setting <code>isLoading</code>
 to false, but of course you can do the same in <em>both</em> success <em>and</em> failure.</p>
-<h2><a name="4">Catch general errors</h2>
+<h2><a name="5">Catch general errors</a></h2>
 <ol>
 <li>try to handle errors contextually<br>(for example the user searches for Foo video, but we have a 404 response then let&#39;s show a static text message on the ui about that)</li>
 <li>or fallback to a general error handler, that can<ol>

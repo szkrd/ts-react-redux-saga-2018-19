@@ -1,4 +1,4 @@
-# TOC
+# Table of contents
 
 1. [Typescript](./typescript)
 2. [React](./react)

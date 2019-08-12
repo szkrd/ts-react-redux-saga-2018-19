@@ -172,3 +172,13 @@ const reducer = (state: IState, action) => {
 
 export default reducer
 ```
+
+## Simpler connect
+
+🚧 TODO: autoconnect
+
+## Dispatch events, subscribe to values
+
+🚧 TODO: hook implementation
+
+🚧 TODO: example

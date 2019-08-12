@@ -17,7 +17,7 @@
             <% menuItem.selected && menuItem.sections.forEach((section, i) => {%>
                 <div class="menu-section depth-<%= menuItem.depth + 1 %>">
                     ◦
-                    <a href="#<%= i %>">
+                    <a href="#<%= i + 1 %>">
                         <%= section %>
                     </a>
                 </div>

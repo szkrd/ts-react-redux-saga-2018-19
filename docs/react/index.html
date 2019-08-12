@@ -13,7 +13,7 @@
     
         <div class="menu-item depth-1 ">
             •
-            <a href="../index.html">TOC</a>
+            <a href="../index.html">Table of contents</a>
             
         </div>
     
@@ -26,6 +26,90 @@
         <div class="menu-item depth-2 selected">
             •
             <a href="../react/index.html">React</a>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#1">
+                        Prop drilling
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#2">
+                        Presentational and container components?
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#3">
+                        Composition and context?
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#4">
+                        Hybrid approach to avoid prop drilling
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#5">
+                        Component hierarchy
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#6">
+                        Higher order components (HOCs)
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#7">
+                        React Router
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#8">
+                        History
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#9">
+                        Shadow history
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#10">
+                        Event emitter
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#11">
+                        Hooks
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#12">
+                        BEM naming
+                    </a>
+                </div>
             
         </div>
     
@@ -55,7 +139,123 @@
     
 </div>
 <div class="markdown-body"><h1 id="react">React</h1>
-<p>TODO</p>
+<h2><a name="1">Prop drilling</a></h2>
+<p>My greatest problem with the project I started working with was <em>&quot;prop drilling&quot;</em> (letting props propagate down to their destination through a series of unrelated components). The layout was fairly conservative: top level components get their props from the store (through connect) and they pass down what&#39;s needed to where it&#39;s needed.</p>
+<ol>
+<li>props sometimes travelled as deep as 5-6 levels</li>
+<li>most of the time whole state objects were passed down<ul>
+<li>state objects (<code>this.props.state</code>) and <code>this.state</code> were terribly confusing</li>
+<li>while these objects are comfortable with their clearly defined interfaces
+it was pretty hard to see the input and the output of components</li>
+<li>tracking down event dispatches (via callbacks) and props were a real pain </li>
+</ul>
+</li>
+</ol>
+<p>It was perfectly clear that prop drilling is painful and encapsulated prop packages are a pain.</p>
+<h2><a name="2">Presentational and container components?</a></h2>
+<p>The react community fairly early on realized that something needs to be done. <a href="https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0">Abramov&#39;s article</a> tried to elaborate on the dumb and connected component ideas.</p>
+<p>Since our connectors happened to be (conservatively enough) on the topmost levels (apart from a small minority of components) it was rather easy to split them into containers and components.</p>
+<ol>
+<li>this made the project much easier to navigate</li>
+<li>using &quot;connect&quot; (especially with ownProps) with typescript is a real pain:
+the amount of code a connector requires is truly terrifying</li>
+<li>splitting the project to containers and components seemed at times rather &quot;unintuitive&quot;
+and refactoring a component to a container or vice versa became rather dreadful.</li>
+</ol>
+<h2><a name="3">Composition and context?</a></h2>
+<p>Context ended up something rather cumbersome - even a <a href="https://reactjs.org/docs/context.html#when-to-use-context">single value</a> context felt out of place: we had a way of avoiding prop drilling, yet it was so uncomfortable, that using it for more than a single property was out of the question.</p>
+<p>The react documentation proposes <a href="https://reactjs.org/docs/composition-vs-inheritance.html">composition</a> for these scenarios, but trying to compose components deeper than a single level is a real mess (messy cart before a sad horse). </p>
+<h2><a name="4">Hybrid approach to avoid prop drilling</a></h2>
+<p>In the end what helped (somewhat) was a mixed approach with a bit of a laissez faires attitude:</p>
+<ol>
+<li>I simplified the <code>connect</code> process with a connect helper (see the <a href="../redux/index.html">redux</a> section)</li>
+<li>I Created a simple <code>dispatcher</code> and <code>subscriber</code> hook through a single channel dedicated event bus
+(now possible with Redux <a href="https://react-redux.js.org/next/api/hooks">since version 7.1</a>)</li>
+<li>Allowed ad-hoc connections:<ul>
+<li>no more container vs component distinction</li>
+<li>if a connection is complicated it may go next to the original component: <em>Foo.tsx</em> and <em>ConnectedFoo.tsx</em></li>
+<li>simple connections may be done at the end of a file: <code>export default Foo</code>, <code>export const ConnectedFoo = ...</code></li>
+</ul>
+</li>
+</ol>
+<h2><a name="5">Component hierarchy</a></h2>
+<p>With mixing components and containers we followed these rules:</p>
+<ol>
+<li>reusable/dumb/presentational (and effectively <em>reused</em>) components should go the top of the component directory</li>
+<li>non reusable components (connected or using subscribe/dispatch) should be under their parent component&#39;s folder</li>
+<li>logical grouping components into subfolders is rare, but allowed (for example the &quot;buy product&quot; flow contained 5
+&quot;pages&quot;, so they ended up under <em>buyProduct</em>)</li>
+<li>follow the <em>foo.scss</em> + <em>Foo.tsx</em> naming convention</li>
+<li>if a component has a top level element then it should have a dash cased class name: <em>FooBarPage.tsx</em> = <code>foo-bar-page</code></li>
+<li>connectors may happen inside the end of a file or in another file (<em>ConnectedFoo.tsx</em>)</li>
+<li>connectors should avoid using ownProps (unfortunately this is kinda hard to do nicely)</li>
+<li>connectors may prep props freely and if they feel necessary, they can return null (avoid rendering the encapsulated component) - yes, if a component doesn&#39;t exist, then it should not be &quot;alive&quot; (even if it is a connector), but sometimes this really made life easier</li>
+<li>avoid anon functions (even with the connector HOC)</li>
+<li>top level routed item must end with the <em>Page</em> suffix, an app level modal should end with the <em>Modal</em> suffix</li>
+<li>do try to use unique component names to help navigating inside the code (do NOT abbreviate, if a component name is long, then so be it)</li>
+<li>components must always be inside their folder on the top level, below that they may be next to their parent </li>
+</ol>
+<h3 id="example">Example</h3>
+<pre class="hljs"><code class="language-text">📁 src
+  📁 components
+    📁 aboutUsModal ◁────────────────── a modal that appears in App.tsx
+      📄 aboutUsModal.scss
+      📄 AboutUsModal.tsx ◁──────────── top level className is &quot;about-us-modal&quot;
+      📄 ConnectedAboutUsModal.tsx ◁─── external connector 
+    📁 button ◁──────────────────────── a component clearly intended for reuse
+      📄 button.scss
+      📄 Button.tsx
+    📁 buyCredits ◁──────────────────── logical grouping of pages (rare)
+      📁 buyCreditsBillingPage
+      📁 buyCreditsCongratsPage
+      📁 buyCreditsProductSelectorPage
+      📁 buyCreditsSummaryPage
+    📁 channelPage ◁─────────────────── highly complex page with lots of components
+      📁 channelCoverImageModal ◁────── this modal appears only here, on the channel page
+      📁 channelPasswordModal
+      📁 channelCoverImageModal
+      📁 channelDonatePanel
+      📁 channelImagesHeader
+      📁 channelTab ◁────────────────── has 4 sub components and a standalone connector
+      📁 channelUserInfo ◁───────────── lots of components in max 3 depth
+      📄 channelPage.scss
+      📄 ChannelPage.tsx ◁───────────── simplified connector is in the end of the file
+    📁 creditsHistoryPage
+      📁 historyDatePicker
+      📁 historyTable
+      📄 creditsHistoryPage.scss
+      📄 CreditsHistoryPage.tsx ◁────── has an internal connector: `export const ConnectedHistoryPage = autoConnect(...`
+    📁 icon ◁────────────────────────── another common reusable (dumb) component
+    📁 loader
+    📄 app.scss
+    📄 App.tsx ◁─────────────────────── the top level application
+    📄 routes.ts ◁───────────────────── list of routes in a highly visible place</code></pre>
+<h2><a name="6">Higher order components (HOCs)</a></h2>
+<p>I don&#39;t really like HOCs: I find them unintuitive and in the react debugger they really mess up the component hierarchy.</p>
+<p>They seemed to be an early silver bullet for code reuse and composition, but I find them superseded by the <a href="https://reactjs.org/docs/hooks-intro.html">hook system</a> and I try to avoid them if possible.</p>
+<h2><a name="7">React Router</a></h2>
+<p>🚧 TODO: ...mixing logic with presentation</p>
+<p>🚧 TODO: child routes</p>
+<p>🚧 TODO: redirection</p>
+<h2><a name="8">History</a></h2>
+<p>🚧 TODO: Link vs browserHistory push</p>
+<h2><a name="9">Shadow history</a></h2>
+<p>🚧 TODO: don&#39;t</p>
+<p>🚧 TODO: do use history state</p>
+<h2><a name="10">Event emitter</a></h2>
+<p>🚧 TODO: command pattern vs redux vs event bus</p>
+<h2><a name="11">Hooks</a></h2>
+<ul>
+<li>react hooks are a godsend in terms of code reusability</li>
+<li><code>componentDidMount</code> can <em>roughly</em> be translated to <code>useEffect(fn, [])</code> (the empty array is the dependency list)</li>
+<li>I find components with more than 3 or 4 variables hard to grok and brittle</li>
+<li>classes became <a href="https://reactjs.org/docs/hooks-intro.html#classes-confuse-both-people-and-machines">second class citizens</a> in the react world and I&#39;m not sure if I like this (on the other hand ui components with class based inheritance is a huge no-no)</li>
+<li>react component lifecycle did not support a mixin system (like <a href="https://vuejs.org/v2/guide/mixins.html">Vue did</a>), hooks do help tremendously</li>
+<li>as a rule of thumb I <strong>avoid</strong> rewriting classes that have &quot;exotic&quot; lifecycle trickery or a complicated internal state - componentDidMount, componentWillUnmount and event callbacks are fine</li>
+</ul>
+<h2><a name="12">BEM naming</a></h2>
+<p>🚧 TODO: BEM levels and nesting</p>
+<p>🚧 TODO: className props</p>
 </div>
 
 </body>

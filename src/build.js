@@ -79,7 +79,6 @@ async function main () {
       selected: item.original === source,
       url: (relativeRoot + item.url).replace('/./', '/')
     }))
-    console.log(localMenuItems)
 
     // prep the ejs renderer, fix paths
     let ejsSource = fs.readFileSync('./overlay/index.ejs', 'utf-8')
@@ -96,8 +95,11 @@ async function main () {
       const contents = fs.readFileSync(source, 'utf-8')
       let md = await marked(contents)
       md = md.replace(/<pre>/g, '<pre class="hljs">') // such custom renderer, very lazy
-      let headings = 0
-      md = md.replace(/<h2[^>]*>/g, (sub) => `<h2><a name="${headings++}">`) // it's butt ugly, but valid :D
+      let headings = 1
+      md = md.replace(/<h2[^>]*>/g, (sub) => `<h2><a name="${headings++}">`) // h2 start
+      md = md.replace(/<\/h2>/g, '</a></h2>') // h2 start
+      md = md.replace(/README\.md">/g, 'index.html">')
+      md = md.replace(/\.md">/g, '.html">')
       await fsWriteFile(target, ejsTemplate({ md, v: buildVersion, root: relativeRoot, menuItems: localMenuItems }))
     }
 

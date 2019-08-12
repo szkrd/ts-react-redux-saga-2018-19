@@ -2,6 +2,8 @@
 
 ## Token storage
 
+🚧 TODO: local storage, session storage, cookies
+
 ## Ajax calls
 
 We have been using [axios](https://github.com/axios/axios) for the ajax calls, but handling the jwt token (and other things) are integrated in an axios wrapper.
