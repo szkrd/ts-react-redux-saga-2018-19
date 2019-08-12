@@ -132,7 +132,7 @@ They seemed to be an early silver bullet for code reuse and composition, but I f
 
 - react hooks are a godsend in terms of code reusability
 - `componentDidMount` can _roughly_ be translated to `useEffect(fn, [])` (the empty array is the dependency list)
-- I find components with more than 3 or 4 variables hard to grok and brittle
+- I find components with more than 3 or 4 useState "pairs" hard to grok and brittle
 - classes became [second class citizens](https://reactjs.org/docs/hooks-intro.html#classes-confuse-both-people-and-machines) in the react world and I'm not sure if I like this (on the other hand ui components with class based inheritance is a huge no-no)
 - react component lifecycle did not support a mixin system (like [Vue did](https://vuejs.org/v2/guide/mixins.html)), hooks do help tremendously
 - as a rule of thumb I **avoid** rewriting classes that have "exotic" lifecycle trickery or a complicated internal state - componentDidMount, componentWillUnmount and event callbacks are fine
