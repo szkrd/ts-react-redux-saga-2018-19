@@ -179,6 +179,24 @@ export default reducer
 
 ## Dispatch events, subscribe to values
 
-🚧 TODO: hook implementation
+The event emitter (see the [react](../react/README.md) section) may be used as a redux proxy: it's rather easy to write a hook to _subscribe_ to redux store change or to _dispatch_ changes (and unsubscribe from these event bus events in the use effect's returned function):
 
-🚧 TODO: example
+```ts
+const [inProgressItems, setInProgressItems] = useState<string[]>([])
+subscribe<string[]>(setInProgressItems, (store) => store.follow.inProgress)
+```
+
+```ts
+const handleClick = () => {
+  if (showAgeRestriction || isUploadFlow) {
+    return
+  }
+  dispatch(playerNeededActionCreator({ video }))
+}
+```
+
+- the downside is that it will make it much harder to to know a component's dependencies (in terms of input parameters: what goes out and what goes in should always be clear)
+- it is still easily discoverable (finding who dispatches an event is much easier than drilling down the dispatcher from a top level component where it is needed)
+- with addListener (on mount) and removeListener (on unmount) it will not cause memory leaks
+- no need to write tons of ts code and an insane amount prop drilling
+- you need to have a clear way of marking presentational (reusable) components and connected components

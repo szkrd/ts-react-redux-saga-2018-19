@@ -108,25 +108,65 @@ They seemed to be an early silver bullet for code reuse and composition, but I f
 
 ## React Router
 
-🚧 TODO: ...mixing logic with presentation
+I really am not a great fan of React Router's wrapper/HOC approach, because it's awfully hard to find components that react to route changes.
 
-🚧 TODO: child routes
+It's very easy to have route strings scattered around the application, which seems to be a bad idea.
 
-🚧 TODO: redirection
+- move all top level routes (for page level components) into a dedicated file, like _routes.ts_
+- create a ts or json file with all the routes, use a `getRoute` function to "use" these routes and __never__ hardcode route urls as strings
+- try to avoid nested routes (see below)
 
-## History
+```ts
+export const reactRouterRoutes = {
+  payoutUrl: '/payout',
+  payoutWithUserUrl: '/payout/:userId',
+  adminExportsUrl: '/admin/exports',
+  adminExportsDownloadUrl: '/admin/exports/:name/download',
+  buyCreditsUrl: '/buy-credits',
+  // ...
+}
+```
 
-🚧 TODO: Link vs browserHistory push
+Our `getRoute` function had a key param (`key: keyof typeof reactRouterRoutes`) and arbitrary number of params for the routes themselves (`...routeParams: (string | number)[]`), for example to replace ":userId" in "/payout/:userId" (remove the placeholder in case nothing given, replace double slashes with single ones). Probably using named routes would be nicer.
 
-## Shadow history
+### Child routes (aka. nested routes)
 
-🚧 TODO: don't
+As far as I know, React Router [has no inherent nested route support](https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4-v5#comment78351524_43311025), this means various components can react to route changes and act as child routes, but the whole render cycle will be triggered on every history state change (pathname, hash, search, state etc.). The solutions we tried:
 
-🚧 TODO: do use history state
+1. detect rerenders triggered by route changes and stop component update with `shouldComponentUpdate` (functional components would require the `React.memo` memoization wrapper though, which makes things even more complicated than they should be).
+2. ditch nested routes, just reload/rerender the whole page component. This seemed to be the easiest thing to do and only a couple of pages suffered. I'm strongly against client app level cache logic, so it probably depends on how fast the data retrieval can be in the "parent" component.
+3. allow visual rerenders, but use the stale data in the store for the parent
+   - this way the vdom differ can still skip rerendering.
+   - with `/foo/1/bar` and `/foo/1/qux` "1" is an id: the parent has to check if this id is in the store and stop asking for fresh data in its mount event (skip dispatch if storeUserId === routeUserId). While I did this checking in the component, it can also be done in the saga - but this of course eerily "resembles" cache-ing.
+   - while on paper this sounds simple, in reality this adds substantial complexity to an already complex parent/page component.
+
+### Redirection
+
+We use [history](https://www.npmjs.com/package/history) for all programmatic navigation and react router's [Link](https://reacttraining.com/react-router/web/api/Link) tag. While there is a [Redirect](https://reacttraining.com/react-router/web/api/Redirect) tag, having a component with no "visible" output (just a huge side effect), feels kinda wrong, but that's how it is.
+
+### History, history states
+
+Always use the `history` package (or `Link` from React Router) to access, redirect, replace urls and their states.
+
+For long flows (onboarding, product purchase) it's possible to pass history states through the "url" (html5 history states are invisible, though they will persist with page reloads). Passing this way is pretty much the same as using query params (location.search) or a custom hashBang format, but it's nicer with lots of fields.
+
+I implemented a shadow history that piggybacked on `history` (the package) event hooks, stored the last 10 steps and it was possible to look up referrers, last state params etc. The problem with this approach is that if the user long presses the back or forward buttons, it's possible to jump multiple steps in the history - and detecting this would be a major pain.
+
+Passing along the parameters _is_ painful, but at least it's predictable. Since we had no store persistance (syncing the redux store to session storage for example), wa had to put them "somewhere" and a shadow history seemed brittle and confusing. 
 
 ## Event emitter
 
-🚧 TODO: command pattern vs redux vs event bus
+Redux is a variation on the event command pattern and an event bus would muddle this holy source of truth - though if implemented carefully, it still is rather useful.
+
+One can use nodejs' [EventEmitter class](https://nodejs.org/api/events.html#events_class_eventemitter), since webpack makes them available.
+
+We used the event bus for simple fire and forget events:
+
+- force update the UI (because of a safari render bug)
+- trigger a _validation done_ event, so that a subscriber can scroll to the offending form fields
+- signal the global, unique and single video player to stop (and later on to continue) if a very important happened (in our case a user donated money and a thank you modal had to be shown)
+
+And that's ("mostly") it. We exported an enum for these events, so they remained trackable throughout the app.
 
 ## Hooks
 
@@ -139,6 +179,10 @@ They seemed to be an early silver bullet for code reuse and composition, but I f
 
 ## BEM naming
 
-🚧 TODO: BEM levels and nesting
+[BEM](http://getbem.com/introduction/) is a popular way of writing (trying to write) reusable components, but writing pure and proper BEM is a real pain, finding a balance between BEM correctness and ease of use is not that easy:
 
-🚧 TODO: className props
+1. use one or two levels for elements and not more; sometimes I use single level only (`video__controls` and `video__player` are both at level one, even though `controls` are inside the `player` section, so `video__player__controls` would be the other option).
+2. use `className` component props as a last resort style override
+3. use `theme` props (`theme: type 'foo' | 'bar' | 'baz'`) instead of overriding child elements' css from a parent
+4. don't be afraid to use mixins (we have _layoutMixins, responsiveMixins, textMixins` etc.), gzipped rendered css will reduce code duplication and it's a smaller price than messing up everything with extends (try debug that in the inspector)
+5. but component props are much easier to graps than mixins. I get proper code completion for react component props, but not for scss mixin named params for example.
