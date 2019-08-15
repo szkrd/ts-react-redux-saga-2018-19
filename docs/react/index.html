@@ -79,34 +79,20 @@
                 <div class="menu-section depth-3">
                     ◦
                     <a href="#8">
-                        History
-                    </a>
-                </div>
-            
-                <div class="menu-section depth-3">
-                    ◦
-                    <a href="#9">
-                        Shadow history
-                    </a>
-                </div>
-            
-                <div class="menu-section depth-3">
-                    ◦
-                    <a href="#10">
                         Event emitter
                     </a>
                 </div>
             
                 <div class="menu-section depth-3">
                     ◦
-                    <a href="#11">
+                    <a href="#9">
                         Hooks
                     </a>
                 </div>
             
                 <div class="menu-section depth-3">
                     ◦
-                    <a href="#12">
+                    <a href="#10">
                         BEM naming
                     </a>
                 </div>
@@ -234,28 +220,69 @@ and refactoring a component to a container or vice versa became rather dreadful.
 <p>I don&#39;t really like HOCs: I find them unintuitive and in the react debugger they really mess up the component hierarchy.</p>
 <p>They seemed to be an early silver bullet for code reuse and composition, but I find them superseded by the <a href="https://reactjs.org/docs/hooks-intro.html">hook system</a> and I try to avoid them if possible.</p>
 <h2><a name="7">React Router</a></h2>
-<p>🚧 TODO: ...mixing logic with presentation</p>
-<p>🚧 TODO: child routes</p>
-<p>🚧 TODO: redirection</p>
-<h2><a name="8">History</a></h2>
-<p>🚧 TODO: Link vs browserHistory push</p>
-<h2><a name="9">Shadow history</a></h2>
-<p>🚧 TODO: don&#39;t</p>
-<p>🚧 TODO: do use history state</p>
-<h2><a name="10">Event emitter</a></h2>
-<p>🚧 TODO: command pattern vs redux vs event bus</p>
-<h2><a name="11">Hooks</a></h2>
+<p>I really am not a great fan of React Router&#39;s wrapper/HOC approach, because it&#39;s awfully hard to find components that react to route changes.</p>
+<p>It&#39;s very easy to have route strings scattered around the application, which seems to be a bad idea.</p>
+<ul>
+<li>move all top level routes (for page level components) into a dedicated file, like <em>routes.ts</em></li>
+<li>create a ts or json file with all the routes, use a <code>getRoute</code> function to &quot;use&quot; these routes and <strong>never</strong> hardcode route urls as strings</li>
+<li>try to avoid nested routes (see below)</li>
+</ul>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> reactRouterRoutes = {
+  payoutUrl: <span class="hljs-string">'/payout'</span>,
+  payoutWithUserUrl: <span class="hljs-string">'/payout/:userId'</span>,
+  adminExportsUrl: <span class="hljs-string">'/admin/exports'</span>,
+  adminExportsDownloadUrl: <span class="hljs-string">'/admin/exports/:name/download'</span>,
+  buyCreditsUrl: <span class="hljs-string">'/buy-credits'</span>,
+  <span class="hljs-comment">// ...</span>
+}</code></pre>
+<p>Our <code>getRoute</code> function had a key param (<code>key: keyof typeof reactRouterRoutes</code>) and arbitrary number of params for the routes themselves (<code>...routeParams: (string | number)[]</code>), for example to replace &quot;:userId&quot; in &quot;/payout/:userId&quot; (remove the placeholder in case nothing given, replace double slashes with single ones). Probably using named routes would be nicer.</p>
+<h3 id="child-routes-aka-nested-routes">Child routes (aka. nested routes)</h3>
+<p>As far as I know, React Router <a href="https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4-v5#comment78351524_43311025">has no inherent nested route support</a>, this means various components can react to route changes and act as child routes, but the whole render cycle will be triggered on every history state change (pathname, hash, search, state etc.). The solutions we tried:</p>
+<ol>
+<li>detect rerenders triggered by route changes and stop component update with <code>shouldComponentUpdate</code> (functional components would require the <code>React.memo</code> memoization wrapper though, which makes things even more complicated than they should be).</li>
+<li>ditch nested routes, just reload/rerender the whole page component. This seemed to be the easiest thing to do and only a couple of pages suffered. I&#39;m strongly against client app level cache logic, so it probably depends on how fast the data retrieval can be in the &quot;parent&quot; component.</li>
+<li>allow visual rerenders, but use the stale data in the store for the parent<ul>
+<li>this way the vdom differ can still skip rerendering.</li>
+<li>with <code>/foo/1/bar</code> and <code>/foo/1/qux</code> &quot;1&quot; is an id: the parent has to check if this id is in the store and stop asking for fresh data in its mount event (skip dispatch if storeUserId === routeUserId). While I did this checking in the component, it can also be done in the saga - but this of course eerily &quot;resembles&quot; cache-ing.</li>
+<li>while on paper this sounds simple, in reality this adds substantial complexity to an already complex parent/page component.</li>
+</ul>
+</li>
+</ol>
+<h3 id="redirection">Redirection</h3>
+<p>We use <a href="https://www.npmjs.com/package/history">history</a> for all programmatic navigation and react router&#39;s <a href="https://reacttraining.com/react-router/web/api/Link">Link</a> tag. While there is a <a href="https://reacttraining.com/react-router/web/api/Redirect">Redirect</a> tag, having a component with no &quot;visible&quot; output (just a huge side effect), feels kinda wrong, but that&#39;s how it is.</p>
+<h3 id="history-history-states">History, history states</h3>
+<p>Always use the <code>history</code> package (or <code>Link</code> from React Router) to access, redirect, replace urls and their states.</p>
+<p>For long flows (onboarding, product purchase) it&#39;s possible to pass history states through the &quot;url&quot; (html5 history states are invisible, though they will persist with page reloads). Passing this way is pretty much the same as using query params (location.search) or a custom hashBang format, but it&#39;s nicer with lots of fields.</p>
+<p>I implemented a shadow history that piggybacked on <code>history</code> (the package) event hooks, stored the last 10 steps and it was possible to look up referrers, last state params etc. The problem with this approach is that if the user long presses the back or forward buttons, it&#39;s possible to jump multiple steps in the history - and detecting this would be a major pain.</p>
+<p>Passing along the parameters <em>is</em> painful, but at least it&#39;s predictable. Since we had no store persistance (syncing the redux store to session storage for example), wa had to put them &quot;somewhere&quot; and a shadow history seemed brittle and confusing. </p>
+<h2><a name="8">Event emitter</a></h2>
+<p>Redux is a variation on the event command pattern and an event bus would muddle this holy source of truth - though if implemented carefully, it still is rather useful.</p>
+<p>One can use nodejs&#39; <a href="https://nodejs.org/api/events.html#events_class_eventemitter">EventEmitter class</a>, since webpack makes them available.</p>
+<p>We used the event bus for simple fire and forget events:</p>
+<ul>
+<li>force update the UI (because of a safari render bug)</li>
+<li>trigger a <em>validation done</em> event, so that a subscriber can scroll to the offending form fields</li>
+<li>signal the global, unique and single video player to stop (and later on to continue) if a very important happened (in our case a user donated money and a thank you modal had to be shown)</li>
+</ul>
+<p>And that&#39;s (&quot;mostly&quot;) it. We exported an enum for these events, so they remained trackable throughout the app.</p>
+<h2><a name="9">Hooks</a></h2>
 <ul>
 <li>react hooks are a godsend in terms of code reusability</li>
 <li><code>componentDidMount</code> can <em>roughly</em> be translated to <code>useEffect(fn, [])</code> (the empty array is the dependency list)</li>
-<li>I find components with more than 3 or 4 variables hard to grok and brittle</li>
+<li>I find components with more than 3 or 4 useState &quot;pairs&quot; hard to grok and brittle</li>
 <li>classes became <a href="https://reactjs.org/docs/hooks-intro.html#classes-confuse-both-people-and-machines">second class citizens</a> in the react world and I&#39;m not sure if I like this (on the other hand ui components with class based inheritance is a huge no-no)</li>
 <li>react component lifecycle did not support a mixin system (like <a href="https://vuejs.org/v2/guide/mixins.html">Vue did</a>), hooks do help tremendously</li>
 <li>as a rule of thumb I <strong>avoid</strong> rewriting classes that have &quot;exotic&quot; lifecycle trickery or a complicated internal state - componentDidMount, componentWillUnmount and event callbacks are fine</li>
 </ul>
-<h2><a name="12">BEM naming</a></h2>
-<p>🚧 TODO: BEM levels and nesting</p>
-<p>🚧 TODO: className props</p>
+<h2><a name="10">BEM naming</a></h2>
+<p><a href="http://getbem.com/introduction/">BEM</a> is a popular way of writing (trying to write) reusable components, but writing pure and proper BEM is a real pain, finding a balance between BEM correctness and ease of use is not that easy:</p>
+<ol>
+<li>use one or two levels for elements and not more; sometimes I use single level only (<code>video__controls</code> and <code>video__player</code> are both at level one, even though <code>controls</code> are inside the <code>player</code> section, so <code>video__player__controls</code> would be the other option).</li>
+<li>use <code>className</code> component props as a last resort style override</li>
+<li>use <code>theme</code> props (<code>theme: type &#39;foo&#39; | &#39;bar&#39; | &#39;baz&#39;</code>) instead of overriding child elements&#39; css from a parent</li>
+<li>don&#39;t be afraid to use mixins (we have _layoutMixins, responsiveMixins, textMixins` etc.), gzipped rendered css will reduce code duplication and it&#39;s a smaller price than messing up everything with extends (try debug that in the inspector)</li>
+<li>but component props are much easier to graps than mixins. I get proper code completion for react component props, but not for scss mixin named params for example.</li>
+</ol>
 </div>
 
 </body>

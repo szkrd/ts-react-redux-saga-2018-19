@@ -323,8 +323,22 @@ export const $NAME$Action$CREATOR$ =
 <h2><a name="8">Simpler connect</a></h2>
 <p>🚧 TODO: autoconnect</p>
 <h2><a name="9">Dispatch events, subscribe to values</a></h2>
-<p>🚧 TODO: hook implementation</p>
-<p>🚧 TODO: example</p>
+<p>The event emitter (see the <a href="../react/index.html">react</a> section) may be used as a redux proxy: it&#39;s rather easy to write a hook to <em>subscribe</em> to redux store change or to <em>dispatch</em> changes (and unsubscribe from these event bus events in the use effect&#39;s returned function):</p>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> [inProgressItems, setInProgressItems] = useState&lt;<span class="hljs-built_in">string</span>[]&gt;([])
+subscribe&lt;<span class="hljs-built_in">string</span>[]&gt;<span class="hljs-function">(<span class="hljs-params">setInProgressItems, (<span class="hljs-params">store</span>) =&gt; store.follow.inProgress</span>)</span></code></pre>
+<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> handleClick = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">if</span> (showAgeRestriction || isUploadFlow) {
+    <span class="hljs-keyword">return</span>
+  }
+  dispatch(playerNeededActionCreator({ video }))
+}</code></pre>
+<ul>
+<li>the downside is that it will make it much harder to to know a component&#39;s dependencies (in terms of input parameters: what goes out and what goes in should always be clear)</li>
+<li>it is still easily discoverable (finding who dispatches an event is much easier than drilling down the dispatcher from a top level component where it is needed)</li>
+<li>with addListener (on mount) and removeListener (on unmount) it will not cause memory leaks</li>
+<li>no need to write tons of ts code and an insane amount prop drilling</li>
+<li>you need to have a clear way of marking presentational (reusable) components and connected components</li>
+</ul>
 </div>
 
 </body>
