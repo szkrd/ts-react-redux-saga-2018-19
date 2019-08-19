@@ -200,3 +200,4 @@ const handleClick = () => {
 - with addListener (on mount) and removeListener (on unmount) it will not cause memory leaks
 - no need to write tons of ts code and an insane amount prop drilling
 - you need to have a clear way of marking presentational (reusable) components and connected components
+- the default maximum event emitter count is (`setMaxListeners`), so that either has to be raised or one has to use a dedicated channel with different types (pretty much how redux does it)
