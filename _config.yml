@@ -1,7 +1,0 @@
-# theme: jekyll-theme-cayman
-remote_theme: pmarsceill/just-the-docs
-search_enabled: false
-aux_links:
-  "Just the Docs on GitHub":
-    - "//github.com/szkrd/ts-react-redux-saga-2018-19"
-color_scheme: "dark"
