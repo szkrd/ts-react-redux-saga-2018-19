@@ -93,7 +93,7 @@
 <h2><a name="1">Yield return types</a></h2>
 <p>TS can&#39;t &quot;return&quot; types for interim yields, there are <a href="https://github.com/redux-saga/redux-saga/issues/884">hacks</a> of course.</p>
 <p>I usually use <a href="https://jsdoc.app/tags-returns.html">JSDoc</a> to indicate a return type so that the IDE can help me.</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-comment">/**
+<pre class="hljs"><code class="language-typescript"><span class="hljs-comment">/**
  * executes the get user saga, returns only the token string
  * @returns {string}
  */</span>
@@ -112,7 +112,7 @@
 <p>I have a <code>utils/redux</code> folder where I keep (among other things) helper saga fragments. If you have the same code repeated over and over again in your saga, you can split that out into a small generator function.</p>
 <h3 id="example">Example</h3>
 <p>if a non logged in user clicks on an action that requires login, we show a small notification with a link to the login page (and we break the current saga flow, forcing execution into the catch block).</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span>* <span class="hljs-title">loginRequiredNotificationSaga</span>(<span class="hljs-params">message: <span class="hljs-built_in">string</span></span>) </span>{
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-function"><span class="hljs-keyword">function</span>* <span class="hljs-title">loginRequiredNotificationSaga</span>(<span class="hljs-params">message: <span class="hljs-built_in">string</span></span>) </span>{
   <span class="hljs-keyword">const</span> currentUser: CurrentUserState = <span class="hljs-keyword">yield</span> select(<span class="hljs-function">(<span class="hljs-params">state: IState</span>) =&gt;</span> state.user.current)
   <span class="hljs-keyword">if</span> (CurrentUserState.isLoggedOut(currentUser)) {
     <span class="hljs-keyword">yield</span> put(addNotLoggedInNotificationActionCreator({ message }))
@@ -128,7 +128,7 @@
 <li>error either ends in a specific <code>yield put getFooFailureAction</code> and/or<br>a generic <code>yield put generalErrorAction</code></li>
 <li>finally (if used) shall end in a <code>yield put getFooFinishedAction</code></li>
 </ol>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">try</span> {
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">try</span> {
   <span class="hljs-keyword">const</span> userToken = <span class="hljs-keyword">yield</span> getUserTokenSaga()
   <span class="hljs-keyword">const</span> url = api.get(apiUrlGetCountriesStates({ country: countryId })
   <span class="hljs-keyword">const</span> states = <span class="hljs-keyword">yield</span> call(url, userToken))
@@ -152,7 +152,7 @@ to false, but of course you can do the same in <em>both</em> success <em>and</em
 </ol>
 <p>If you expect no errors or the error may have no visible outcome then still log the error to the console. I use the simple <a href="https://github.com/pimterry/loglevel">loglevel</a> library for logging (based on environment).</p>
 <p>Our general error handler (caught with <code>yield takeEvery(GENERAL_ERROR, generalErrorFlow)</code>) looked like this:</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-function"><span class="hljs-keyword">function</span>* <span class="hljs-title">generalErrorFlow</span>(<span class="hljs-params">action: IGeneralErrorAction</span>) </span>{
+<pre class="hljs"><code class="language-typescript"><span class="hljs-function"><span class="hljs-keyword">function</span>* <span class="hljs-title">generalErrorFlow</span>(<span class="hljs-params">action: IGeneralErrorAction</span>) </span>{
   <span class="hljs-keyword">const</span> error = action.payload.error
   <span class="hljs-keyword">if</span> (error <span class="hljs-keyword">instanceof</span> LoginRequiredError) {
     <span class="hljs-keyword">return</span>

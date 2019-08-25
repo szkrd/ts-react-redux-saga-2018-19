@@ -27,7 +27,7 @@ It is better to copy-paste JS code from Stackoverflow and rewrite it to TS, than
 
 Don't. TS 3.7 [might support](https://github.com/microsoft/TypeScript/issues/16) the "elvis operator" (aka. safe navigation, null coalescence).
 
-```ts
+```typescript
 const x = { y: { z: null, q: undefined } };
 console.log(x?.y?.z?.foo);
 ```

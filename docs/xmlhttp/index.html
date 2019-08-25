@@ -84,7 +84,37 @@
 </div>
 <div class="markdown-body"><h1 id="xmlhttp-requests">Xmlhttp requests</h1>
 <h2><a name="1">Token storage</a></h2>
-<p>🚧 TODO: local storage, session storage, cookies</p>
+<p>JWT tokens are the lifeline between the backend session handling and the frontend session handling. JWT tokens are sacred beasts.</p>
+<ol>
+<li>store the token in 1. localStorage 2. cookie</li>
+<li>retrieve token from 1. cookie 2. localStorage</li>
+</ol>
+<p>Safari in private mode ignores localStorage writes, but noone can afford to lock out privacy conscious Mac users.</p>
+<p>Don&#39;t forget that every storage (local and session) access (read, write, pre-flight availability check) must be wrapped in try-catch blocks:</p>
+<ul>
+<li><em>get</em> and <em>availability</em> because of the JSON parsing</li>
+<li><em>set</em> because of the storage quota</li>
+</ul>
+<p>I use a &quot;wrapper parent&quot; for both session and local storage and then channel every operation through the wrapper itself:</p>
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-keyword">class</span> SessionStorage&lt;T&gt; {
+  <span class="hljs-keyword">static</span> isAvailable = simpleSessionStorage.isAvailable
+  <span class="hljs-keyword">static</span> isEmpty = simpleSessionStorage.isEmpty
+  <span class="hljs-keyword">protected</span> wrapper = simpleSessionStorage
+  <span class="hljs-keyword">protected</span> id = <span class="hljs-string">''</span>
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">id = ''</span>) {
+    <span class="hljs-keyword">this</span>.id = id
+  }
+  <span class="hljs-keyword">get</span>(): T {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.wrapper.getItem(<span class="hljs-keyword">this</span>.id)
+  }
+  <span class="hljs-keyword">set</span>(value): T {
+    <span class="hljs-keyword">this</span>.wrapper.setItem(<span class="hljs-keyword">this</span>.id, value)
+    <span class="hljs-keyword">return</span> value
+  }
+  destroy() {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.wrapper.removeItem(<span class="hljs-keyword">this</span>.id)
+  }
+}</code></pre>
 <h2><a name="2">Ajax calls</a></h2>
 <p>We have been using <a href="https://github.com/axios/axios">axios</a> for the ajax calls, but handling the jwt token (and other things) are integrated in an axios wrapper.</p>
 <p>What should such a wrapper do?</p>
@@ -112,7 +142,7 @@ the saga catch can deal with it</li>
 </ul>
 <h2><a name="3">Calling api urls in a discoverable way</a></h2>
 <p>Since backend uses swagger to create documentation it was possible for us to parse the <em>openapi.json</em> and generate (via scripts in <em>package.json</em>) a list of functions:</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlDeleteDistributions = <span class="hljs-function">(<span class="hljs-params">{ distribution }</span>) =&gt;</span> <span class="hljs-string">`distributions/<span class="hljs-subst">${distribution}</span>`</span>
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlDeleteDistributions = <span class="hljs-function">(<span class="hljs-params">{ distribution }</span>) =&gt;</span> <span class="hljs-string">`distributions/<span class="hljs-subst">${distribution}</span>`</span>
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlDeleteFollowsIds = <span class="hljs-function">(<span class="hljs-params">{ user }</span>) =&gt;</span> <span class="hljs-string">`follows-ids/<span class="hljs-subst">${user}</span>`</span>
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlGetCategoryFeed = <span class="hljs-function">(<span class="hljs-params">{ category }</span>) =&gt;</span> <span class="hljs-string">`category-feed/<span class="hljs-subst">${category}</span>`</span>
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> apiUrlGetCountries = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-string">`countries`</span>

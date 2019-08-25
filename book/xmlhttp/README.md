@@ -2,7 +2,41 @@
 
 ## Token storage
 
-🚧 TODO: local storage, session storage, cookies
+JWT tokens are the lifeline between the backend session handling and the frontend session handling. JWT tokens are sacred beasts.
+
+1. store the token in 1. localStorage 2. cookie
+2. retrieve token from 1. cookie 2. localStorage
+
+Safari in private mode ignores localStorage writes, but noone can afford to lock out privacy conscious Mac users.
+
+Don't forget that every storage (local and session) access (read, write, pre-flight availability check) must be wrapped in try-catch blocks:
+
+- _get_ and _availability_ because of the JSON parsing
+- _set_ because of the storage quota
+
+I use a "wrapper parent" for both session and local storage and then channel every operation through the wrapper itself:
+
+```typescript
+export default class SessionStorage<T> {
+  static isAvailable = simpleSessionStorage.isAvailable
+  static isEmpty = simpleSessionStorage.isEmpty
+  protected wrapper = simpleSessionStorage
+  protected id = ''
+  constructor(id = '') {
+    this.id = id
+  }
+  get(): T {
+    return this.wrapper.getItem(this.id)
+  }
+  set(value): T {
+    this.wrapper.setItem(this.id, value)
+    return value
+  }
+  destroy() {
+    return this.wrapper.removeItem(this.id)
+  }
+}
+```
 
 ## Ajax calls
 
@@ -31,7 +65,7 @@ What should such a wrapper do?
 
 Since backend uses swagger to create documentation it was possible for us to parse the _openapi.json_ and generate (via scripts in _package.json_) a list of functions:
 
-```ts
+```typescript
 export const apiUrlDeleteDistributions = ({ distribution }) => `distributions/${distribution}`
 export const apiUrlDeleteFollowsIds = ({ user }) => `follows-ids/${user}`
 export const apiUrlGetCategoryFeed = ({ category }) => `category-feed/${category}`

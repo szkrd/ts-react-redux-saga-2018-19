@@ -120,7 +120,7 @@
 <div class="markdown-body"><h1 id="redux">Redux</h1>
 <h2><a name="1">Payloads, actions, actionCreators</a></h2>
 <p>Writing actions with TS is a major pain. We decided to keep the <strong>action name</strong> + <strong>payload interface</strong> + <strong>action interface</strong> + <strong>action creator</strong> &quot;packs&quot; together (most tutorials keep them separated in groups by type):</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-comment">// getChannelPage action</span>
+<pre class="hljs"><code class="language-typescript"><span class="hljs-comment">// getChannelPage action</span>
 <span class="hljs-comment">// ---------------------</span>
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> GET_CHANNEL_PAGE = <span class="hljs-string">'channel/GET_CHANNEL_PAGE'</span>
@@ -260,18 +260,18 @@ export const $NAME$Action$CREATOR$ =
 </tbody></table>
 <h2><a name="3">Exported action types</a></h2>
 <p>At the end of the file we export the list of actions:</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> TChannelPageActions =
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> TChannelPageActions =
   | GetChannelPageAction
   | LeaveChannelPageAction
   | ...</code></pre>
 <p>You can add &quot;other&quot; actions (from other stores) here, but probably it&#39;s better to use them in the reducer with the type parameter:</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> channelPageReducer: Reducer&lt;ChannelPageState&gt; = (
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">const</span> channelPageReducer: Reducer&lt;ChannelPageState&gt; = (
   state = INITIAL_STATE,
   action: TChannelPageActions | TVideoPageActions
 ): <span class="hljs-function"><span class="hljs-params">ChannelPageState</span> =&gt;</span> {</code></pre>
 <h2><a name="4">Reducer switch-case</a></h2>
 <p>Context in switch case structures is tricky, we prefer plain old conditionals, where the variable scope is clear and there is no fallthrough:</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">if</span> (action.type === CHANNEL_PAGE_DONATE_SUCCESS) {
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">if</span> (action.type === CHANNEL_PAGE_DONATE_SUCCESS) {
   <span class="hljs-keyword">const</span> { isOwnPage, creditsRaised } = state
   <span class="hljs-keyword">const</span> { amount } = action.payload
   <span class="hljs-keyword">if</span> (isOwnPage) {
@@ -285,7 +285,7 @@ export const $NAME$Action$CREATOR$ =
 <p>In this example the <code>amount</code> variable is tied to the conditional&#39;s block scope (with switch case it would be on the level of the enclosing switch).</p>
 <h2><a name="5">Initial state</a></h2>
 <p>Using a <code>class</code> type to define a store&#39;s initial state makes life easier, since we won&#39;t need another interface for the structure definition:</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">class</span> IPlayerState {
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">class</span> IPlayerState {
   distributionId?: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>
   source?: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>
   videoId?: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>
@@ -301,7 +301,7 @@ export const $NAME$Action$CREATOR$ =
 <h2><a name="6">Reducer usage</a></h2>
 <p>Redux will &quot;run&quot; all the reducers, so if you place anything above the switch/case (or the first conditional) block that will <strong>always</strong> be executed.</p>
 <p>It&#39;s very easy to do an <code>action.payload.foobar</code> check, which in turn will break (unless all your actions throughout the app has a foobar payload item, but I doubt that).</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> creditsReducer: Reducer&lt;ICreditsState&gt; = (
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">const</span> creditsReducer: Reducer&lt;ICreditsState&gt; = (
   state: ICreditsState = INITIAL_STATE,
   action: TCreditsAction
 ): <span class="hljs-function"><span class="hljs-params">ICreditsState</span> =&gt;</span> {
@@ -313,7 +313,7 @@ export const $NAME$Action$CREATOR$ =
     <span class="hljs-keyword">case</span> GET_USER_REQUEST:</code></pre>
 <h2><a name="7">Flushing all the stores</a></h2>
 <p>On logout you probably want to reset the full store. Listening to a LOGOUT event in every reducer is <a href="https://twitter.com/dan_abramov/status/703035591831773184">not needed</a>:</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> reducer = <span class="hljs-function">(<span class="hljs-params">state: IState, action</span>) =&gt;</span> {
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">const</span> reducer = <span class="hljs-function">(<span class="hljs-params">state: IState, action</span>) =&gt;</span> {
   <span class="hljs-keyword">if</span> (action.type === LOGOUT_FINISHED) {
     state = <span class="hljs-literal">undefined</span>
   }
@@ -321,12 +321,34 @@ export const $NAME$Action$CREATOR$ =
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> reducer</code></pre>
 <h2><a name="8">Simpler connect</a></h2>
-<p>🚧 TODO: autoconnect</p>
+<p>I wrote a simple autoConnect, which is much easier to use than the default connect mechanism (which is rather verbose and hard to grasp at first look in typescript):</p>
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">class</span> ChannelPageProps <span class="hljs-keyword">extends</span> Connectable {
+  routeUserId = <span class="hljs-keyword">this</span>.routeParams.userId
+  isBroken = <span class="hljs-keyword">this</span>.state.channelPage.isBroken
+  currentUserId = <span class="hljs-keyword">this</span>.state.user.current.id
+  <span class="hljs-comment">// etc.</span>
+  getChannelPage = getChannelPageActionCreator
+  leavePage = leaveChannelPageActionCreator
+  openEditProfileModal = openEditProfileModalActionCreator
+  <span class="hljs-comment">// etc.</span>
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> ConnectedChannelPage = autoConnect(ChannelPageProps, ChannelPage)</code></pre>
+<ul>
+<li>with the <code>Connectable</code> parent I get code completion for everything <code>this.store</code></li>
+<li>routerParams are handled &quot;manually&quot; in the Connectable class</li>
+<li>functions will be dispatchers, store paths will be connected variables</li>
+</ul>
+<p>There are two big issues with this approach (though it works and we used it quite often):</p>
+<ol>
+<li><code>ownProps</code> are not supported. It&#39;s not particularly hard to support them, but the extra interface definition and connector massaging around every autoConnect made it way too verbose so I ditched it</li>
+<li>this is a scary one: with all the autoConnects happening in script inclusion time (webpack build) <code>Connectable</code> will need to know about the <strong>store hierarchy</strong> and the store probably have to know about.. pretty much every reducer and action, meaning the inclusion time dependency tree is huge and flaky. It&#39;s not that hard to cause a circular dependency with adding more, far reaching exports. To us this happened with the routes&#39; definition file, so we had to modify how we access react router urls.</li>
+</ol>
 <h2><a name="9">Dispatch events, subscribe to values</a></h2>
 <p>The event emitter (see the <a href="../react/index.html">react</a> section) may be used as a redux proxy: it&#39;s rather easy to write a hook to <em>subscribe</em> to redux store change or to <em>dispatch</em> changes (and unsubscribe from these event bus events in the use effect&#39;s returned function):</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> [inProgressItems, setInProgressItems] = useState&lt;<span class="hljs-built_in">string</span>[]&gt;([])
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">const</span> [inProgressItems, setInProgressItems] = useState&lt;<span class="hljs-built_in">string</span>[]&gt;([])
 subscribe&lt;<span class="hljs-built_in">string</span>[]&gt;<span class="hljs-function">(<span class="hljs-params">setInProgressItems, (<span class="hljs-params">store</span>) =&gt; store.follow.inProgress</span>)</span></code></pre>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> handleClick = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">const</span> handleClick = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
   <span class="hljs-keyword">if</span> (showAgeRestriction || isUploadFlow) {
     <span class="hljs-keyword">return</span>
   }
@@ -338,6 +360,7 @@ subscribe&lt;<span class="hljs-built_in">string</span>[]&gt;<span class="hljs-fu
 <li>with addListener (on mount) and removeListener (on unmount) it will not cause memory leaks</li>
 <li>no need to write tons of ts code and an insane amount prop drilling</li>
 <li>you need to have a clear way of marking presentational (reusable) components and connected components</li>
+<li>the default maximum event emitter count is (<code>setMaxListeners</code>), so that either has to be raised or one has to use a dedicated channel with different types (pretty much how redux does it)</li>
 </ul>
 </div>
 

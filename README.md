@@ -7,3 +7,7 @@ I've spent more than a year on a medium sized (100+ components) project with the
 These are my thoughts and notes on the topic, what worked and what didn't, what was useful and what was a dead end.
 
 Feel free to browse the repository, or access a [rudimentary render](https://szkrd.github.io/ts-react-redux-saga-2018-19/) via github. 
+
+## Build
+
+The build script [requires](https://github.com/nodejs/node/issues/24698#issuecomment-486405542) node 10.12+

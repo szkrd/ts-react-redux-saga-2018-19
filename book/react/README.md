@@ -116,7 +116,7 @@ It's very easy to have route strings scattered around the application, which see
 - create a ts or json file with all the routes, use a `getRoute` function to "use" these routes and __never__ hardcode route urls as strings
 - try to avoid nested routes (see below)
 
-```ts
+```typescript
 export const reactRouterRoutes = {
   payoutUrl: '/payout',
   payoutWithUserUrl: '/payout/:userId',

@@ -6,7 +6,7 @@ TS can't "return" types for interim yields, there are [hacks](https://github.com
 
 I usually use [JSDoc](https://jsdoc.app/tags-returns.html) to indicate a return type so that the IDE can help me.
 
-```ts
+```typescript
 /**
  * executes the get user saga, returns only the token string
  * @returns {string}
@@ -39,7 +39,7 @@ I have a `utils/redux` folder where I keep (among other things) helper saga frag
  
 if a non logged in user clicks on an action that requires login, we show a small notification with a link to the login page (and we break the current saga flow, forcing execution into the catch block).
 
-```ts
+```typescript
 export default function* loginRequiredNotificationSaga(message: string) {
   const currentUser: CurrentUserState = yield select((state: IState) => state.user.current)
   if (CurrentUserState.isLoggedOut(currentUser)) {
@@ -61,7 +61,7 @@ When I use try-catch-finally:
    a generic `yield put generalErrorAction`
 4. finally (if used) shall end in a `yield put getFooFinishedAction`
 
-```ts
+```typescript
 try {
   const userToken = yield getUserTokenSaga()
   const url = api.get(apiUrlGetCountriesStates({ country: countryId })
@@ -90,7 +90,7 @@ If you expect no errors or the error may have no visible outcome then still log 
 
 Our general error handler (caught with `yield takeEvery(GENERAL_ERROR, generalErrorFlow)`) looked like this:
 
-```ts
+```typescript
 function* generalErrorFlow(action: IGeneralErrorAction) {
   const error = action.payload.error
   if (error instanceof LoginRequiredError) {

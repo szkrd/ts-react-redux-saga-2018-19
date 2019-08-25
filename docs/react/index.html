@@ -227,7 +227,7 @@ and refactoring a component to a container or vice versa became rather dreadful.
 <li>create a ts or json file with all the routes, use a <code>getRoute</code> function to &quot;use&quot; these routes and <strong>never</strong> hardcode route urls as strings</li>
 <li>try to avoid nested routes (see below)</li>
 </ul>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> reactRouterRoutes = {
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> reactRouterRoutes = {
   payoutUrl: <span class="hljs-string">'/payout'</span>,
   payoutWithUserUrl: <span class="hljs-string">'/payout/:userId'</span>,
   adminExportsUrl: <span class="hljs-string">'/admin/exports'</span>,

@@ -21,6 +21,20 @@
             •
             <a href="../debugging/index.html">Debugging</a>
             
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#1">
+                        Logging
+                    </a>
+                </div>
+            
+                <div class="menu-section depth-3">
+                    ◦
+                    <a href="#2">
+                        Testing on mobile
+                    </a>
+                </div>
+            
         </div>
     
         <div class="menu-item depth-2 ">
@@ -55,10 +69,37 @@
     
 </div>
 <div class="markdown-body"><h1 id="debugging">Debugging</h1>
-<p>🚧 TODO: write a bit about logging</p>
-<p>🚧 TODO: write about the debug listener</p>
-<p>🚧 TODO: mobile with dnsmasq</p>
-<p>🚧 TODO: the debug page route</p>
+<h2><a name="1">Logging</a></h2>
+<ul>
+<li>always have loggers that can be turned on for every environment (even for production)</li>
+<li>use localstorage flags to enable individual loggers</li>
+<li>currently I use <a href="https://www.npmjs.com/package/loglevel">loglevel</a> for setting the default loglevel in production to error only (still overridable with an ls flag)</li>
+<li>every log group has a unique icon or emoji (this really helps for filtering)</li>
+<li>I have a <code>/debug</code> route, where one can enable the various loggers:<ul>
+<li>LogRemote: <em>forward loglevel logs to remote debug listener</em> (see below)</li>
+<li>LogRedux: ♻ <em>log redux actions</em> (before and payload)</li>
+<li>LogAxios: 🖥 <em>log axios xhttp requests</em> (with interceptor for up ↗ and down ↘)</li>
+<li>LogEventBus: 🚌 <em>log event bus events</em></li>
+<li>LogHlsjs: 📹 <em>log hlsjs messages</em></li>
+<li>LogSocketIo: 🔌 <em>log socket.io events</em> (with JSON parsing, which really help as opposed to using the vanilla view in the dev toolbar)</li>
+<li>LogTimeStamp: <em>enable timestamp prefixes</em> (this can be force enabled in the dev toolbar, but if you are redirecting logs for debugging, this can help)</li>
+<li>LogLevel: <em>set loglevel verbosity to maximum (zero for info)</em></li>
+</ul>
+</li>
+</ul>
+<h2><a name="2">Testing on mobile</a></h2>
+<ul>
+<li><a href="https://www.browserstack.com/">BrowserStack</a> is a tremendous help and a major pain in the back</li>
+<li>testing &quot;ios stuff&quot; from Windows is terrible, the most reliable way we&#39;ve found was using <a href="https://wiki.debian.org/HowTo/dnsmasq">dnsmasq</a> (one of our many docker containers), so the <code>foobar.host</code> would resolve as the developer&#39;s IP address.</li>
+<li>connecting an android phone on Windows (using Chrome) is a no brainer</li>
+</ul>
+<h3 id="remote-logging">Remote logging</h3>
+<p>I wrote a tiny listener in node (port 80) which we could use to &quot;insert&quot; a &quot;debug image&quot; in the web app:</p>
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image()
+<span class="hljs-comment">// set uid and payload ...</span>
+img.src = <span class="hljs-string">`<span class="hljs-subst">${REMOTE_DEBUG_URL}</span>/<span class="hljs-subst">${uid}</span>.png?p=<span class="hljs-subst">${payload}</span>`</span></code></pre>
+<p>This passes the JSON stringified parameter from the client (from any domain, though sending full stores can not be done this way, the GET url size has a limit) and the live debug server can just print out the reformatted json to the terminal.</p>
+<p>I admit I&#39;ve only needed this method for a couple of times, mostly when BrowserStack did not help and I needed physical access to the iOS browser (like testing the custom video player).</p>
 </div>
 
 </body>

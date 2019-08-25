@@ -116,7 +116,7 @@ Know when type hinting is needed and when it isn&#39;t.</li>
 <p>It is better to copy-paste JS code from Stackoverflow and rewrite it to TS, than installing a dependency without its very own type definition.</p>
 <h2><a name="3">Using objectGet, pick and similar helpers</a></h2>
 <p>Don&#39;t. TS 3.7 <a href="https://github.com/microsoft/TypeScript/issues/16">might support</a> the &quot;elvis operator&quot; (aka. safe navigation, null coalescence).</p>
-<pre class="hljs"><code class="language-ts"><span class="hljs-keyword">const</span> x = { y: { z: <span class="hljs-literal">null</span>, q: <span class="hljs-literal">undefined</span> } };
+<pre class="hljs"><code class="language-typescript"><span class="hljs-keyword">const</span> x = { y: { z: <span class="hljs-literal">null</span>, q: <span class="hljs-literal">undefined</span> } };
 <span class="hljs-built_in">console</span>.log(x?.y?.z?.foo);</code></pre>
 <p>Until then... I don&#39;t know. <code>Object.get</code>, <code>_.get</code>, <code>oGet</code>, <code>objectGet</code> and others will break code discoverability.</p>
 <p>If <code>X</code> interface has A, B, C props and <code>Y</code> interface has A and B then even if you write a <code>pick</code> function with proper type hinting, picking A &amp; B from <code>X</code> will <strong>not</strong> magically convert it to interface <code>Y</code>.</p>

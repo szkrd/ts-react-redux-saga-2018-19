@@ -4,7 +4,7 @@
 
 Writing actions with TS is a major pain. We decided to keep the **action name** + **payload interface** + **action interface** + **action creator** "packs" together (most tutorials keep them separated in groups by type):
 
-```ts
+```typescript
 // getChannelPage action
 // ---------------------
 
@@ -84,7 +84,7 @@ export const $NAME$Action$CREATOR$ =
 
 At the end of the file we export the list of actions:
 
-```ts
+```typescript
 export type TChannelPageActions =
   | GetChannelPageAction
   | LeaveChannelPageAction
@@ -93,7 +93,7 @@ export type TChannelPageActions =
 
 You can add "other" actions (from other stores) here, but probably it's better to use them in the reducer with the type parameter:
 
-```ts
+```typescript
 const channelPageReducer: Reducer<ChannelPageState> = (
   state = INITIAL_STATE,
   action: TChannelPageActions | TVideoPageActions
@@ -104,7 +104,7 @@ const channelPageReducer: Reducer<ChannelPageState> = (
 
 Context in switch case structures is tricky, we prefer plain old conditionals, where the variable scope is clear and there is no fallthrough:
 
-```ts
+```typescript
 if (action.type === CHANNEL_PAGE_DONATE_SUCCESS) {
   const { isOwnPage, creditsRaised } = state
   const { amount } = action.payload
@@ -124,7 +124,7 @@ In this example the `amount` variable is tied to the conditional's block scope (
 
 Using a `class` type to define a store's initial state makes life easier, since we won't need another interface for the structure definition:
 
-```ts
+```typescript
 class IPlayerState {
   distributionId?: string = ''
   source?: string = ''
@@ -146,7 +146,7 @@ Redux will "run" all the reducers, so if you place anything above the switch/cas
 
 It's very easy to do an `action.payload.foobar` check, which in turn will break (unless all your actions throughout the app has a foobar payload item, but I doubt that).
 
-```ts
+```typescript
 const creditsReducer: Reducer<ICreditsState> = (
   state: ICreditsState = INITIAL_STATE,
   action: TCreditsAction
@@ -163,7 +163,7 @@ const creditsReducer: Reducer<ICreditsState> = (
 
 On logout you probably want to reset the full store. Listening to a LOGOUT event in every reducer is [not needed](https://twitter.com/dan_abramov/status/703035591831773184):
 
-```ts
+```typescript
 const reducer = (state: IState, action) => {
   if (action.type === LOGOUT_FINISHED) {
     state = undefined
@@ -175,18 +175,42 @@ export default reducer
 
 ## Simpler connect
 
-🚧 TODO: autoconnect
+I wrote a simple autoConnect, which is much easier to use than the default connect mechanism (which is rather verbose and hard to grasp at first look in typescript):
+
+```typescript
+class ChannelPageProps extends Connectable {
+  routeUserId = this.routeParams.userId
+  isBroken = this.state.channelPage.isBroken
+  currentUserId = this.state.user.current.id
+  // etc.
+  getChannelPage = getChannelPageActionCreator
+  leavePage = leaveChannelPageActionCreator
+  openEditProfileModal = openEditProfileModalActionCreator
+  // etc.
+}
+
+export const ConnectedChannelPage = autoConnect(ChannelPageProps, ChannelPage)
+```
+
+- with the `Connectable` parent I get code completion for everything `this.store`
+- routerParams are handled "manually" in the Connectable class
+- functions will be dispatchers, store paths will be connected variables
+
+There are two big issues with this approach (though it works and we used it quite often):
+
+1. `ownProps` are not supported. It's not particularly hard to support them, but the extra interface definition and connector massaging around every autoConnect made it way too verbose so I ditched it
+2. this is a scary one: with all the autoConnects happening in script inclusion time (webpack build) `Connectable` will need to know about the **store hierarchy** and the store probably have to know about.. pretty much every reducer and action, meaning the inclusion time dependency tree is huge and flaky. It's not that hard to cause a circular dependency with adding more, far reaching exports. To us this happened with the routes' definition file, so we had to modify how we access react router urls.
 
 ## Dispatch events, subscribe to values
 
 The event emitter (see the [react](../react/README.md) section) may be used as a redux proxy: it's rather easy to write a hook to _subscribe_ to redux store change or to _dispatch_ changes (and unsubscribe from these event bus events in the use effect's returned function):
 
-```ts
+```typescript
 const [inProgressItems, setInProgressItems] = useState<string[]>([])
 subscribe<string[]>(setInProgressItems, (store) => store.follow.inProgress)
 ```
 
-```ts
+```typescript
 const handleClick = () => {
   if (showAgeRestriction || isUploadFlow) {
     return
