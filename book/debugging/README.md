@@ -9,7 +9,7 @@
 - I have a `/debug` route, where one can enable the various loggers:
   - LogRemote: _forward loglevel logs to remote debug listener_ (see below)
   - LogRedux: ♻ _log redux actions_ (before and payload)
-  - LogAxios: 🖥 _log axios xhttp requests_ (with interceptor for up ↗ and down ↘)
+  - LogAxios: 🖥 _log axios xhttp requests_ (with interceptor for up ↟ and down ↡)
   - LogEventBus: 🚌 _log event bus events_
   - LogHlsjs: 📹 _log hlsjs messages_
   - LogSocketIo: 🔌 _log socket.io events_ (with JSON parsing, which really help as opposed to using the vanilla view in the dev toolbar)
