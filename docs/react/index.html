@@ -280,7 +280,7 @@ and refactoring a component to a container or vice versa became rather dreadful.
 <li>use one or two levels for elements and not more; sometimes I use single level only (<code>video__controls</code> and <code>video__player</code> are both at level one, even though <code>controls</code> are inside the <code>player</code> section, so <code>video__player__controls</code> would be the other option).</li>
 <li>use <code>className</code> component props as a last resort style override</li>
 <li>use <code>theme</code> props (<code>theme: type &#39;foo&#39; | &#39;bar&#39; | &#39;baz&#39;</code>) instead of overriding child elements&#39; css from a parent</li>
-<li>don&#39;t be afraid to use mixins (we have _layoutMixins, responsiveMixins, textMixins` etc.), gzipped rendered css will reduce code duplication and it&#39;s a smaller price than messing up everything with extends (try debug that in the inspector)</li>
+<li>don&#39;t be afraid to use mixins (we have <em>_layoutMixins</em>, <em>_responsiveMixins</em>, <em>_textMixins</em> etc.), gzipped rendered css will reduce code duplication and it&#39;s a smaller price than messing up everything with extends (try debug that in the inspector)</li>
 <li>but component props are much easier to graps than mixins. I get proper code completion for react component props, but not for scss mixin named params for example.</li>
 </ol>
 </div>

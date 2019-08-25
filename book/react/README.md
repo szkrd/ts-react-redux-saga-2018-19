@@ -184,5 +184,5 @@ And that's ("mostly") it. We exported an enum for these events, so they remained
 1. use one or two levels for elements and not more; sometimes I use single level only (`video__controls` and `video__player` are both at level one, even though `controls` are inside the `player` section, so `video__player__controls` would be the other option).
 2. use `className` component props as a last resort style override
 3. use `theme` props (`theme: type 'foo' | 'bar' | 'baz'`) instead of overriding child elements' css from a parent
-4. don't be afraid to use mixins (we have _layoutMixins, responsiveMixins, textMixins` etc.), gzipped rendered css will reduce code duplication and it's a smaller price than messing up everything with extends (try debug that in the inspector)
+4. don't be afraid to use mixins (we have __layoutMixins_, __responsiveMixins_, __textMixins_ etc.), gzipped rendered css will reduce code duplication and it's a smaller price than messing up everything with extends (try debug that in the inspector)
 5. but component props are much easier to graps than mixins. I get proper code completion for react component props, but not for scss mixin named params for example.
